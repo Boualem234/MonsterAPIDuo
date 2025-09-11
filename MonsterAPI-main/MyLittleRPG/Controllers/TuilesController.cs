@@ -99,7 +99,6 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 estTraversable = true;
             }
 
-            // Exemple d'URL d'image, à adapter selon vos besoins
             string imageURL = $"images/{type.ToString().ToLower()}.png";
 
             return new Tuile(positionX, positionY, type, estTraversable, imageURL);
