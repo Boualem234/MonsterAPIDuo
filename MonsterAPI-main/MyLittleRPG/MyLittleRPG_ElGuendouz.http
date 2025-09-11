@@ -1,0 +1,6 @@
+@MyLittleRPG_ElGuendouz_HostAddress = http://localhost:5202
+
+GET {{MyLittleRPG_ElGuendouz_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
