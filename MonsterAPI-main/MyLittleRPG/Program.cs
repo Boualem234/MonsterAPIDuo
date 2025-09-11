@@ -7,6 +7,14 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(opt =>
+{
+    opt.AddPolicy("CorsPolicy", policyBuilder =>
+    {
+        policyBuilder.AllowAnyHeader().AllowAnyMethod().WithOrigins("*");
+    });
+});
+
 builder.Services.AddDbContext<MonsterContext>(options =>
 {
     var connectionString = builder.Configuration.GetConnectionString("Default");
