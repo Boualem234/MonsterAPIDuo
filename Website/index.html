@@ -2,10 +2,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="./css/styles.css">
     <title>MyLittleRPG</title>
 </head>
 <body>
-    
+    <div class="container mt-5">
+        <div class="row mt-5 mybg rounded py-5 text-white">
+            <h1 class="text-center">
+                <i class="fa-solid fa-map-location"></i> Visualiseur de carte
+            </h1>
+        </div>
+    </div>
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-2 rounded py-5 text-white">
+                <div class="container mybg rounded mb-4 py-3">
+                    <p class="text-center fw-bold"><i class="fa-solid fa-circle-info"></i> Informations</p>
+                    <hr>
+                    <p class="mt-1 mybg2 rounded text-center">Taille : 5x5</p>
+                    <p class="mt-1 mybg2 rounded text-center">Zone d'affichage : 5x5 tuiles</p>
+                    <p class="mt-1 mybg2 rounded text-center">Status API : Connected</p>
+                    <p class="mt-1 mybg2 rounded text-center">Tuiles chargées : 0</p>
+                </div>
+                <div class="container mybg rounded mb-4 py-3">
+                    test
+                </div>
+                <div class="container mybg rounded mb-4 py-3">
+                    <p class="text-center fw-bold"><i class="fa-solid fa-book"></i> Légende
+                    <hr>
+                </div>
+                <div class="container mybg rounded mb-4 py-3">
+                    test
+                </div>
+            </div>
+            <div class="col-10 mt-5 rounded mybg text-white py-2">
+                <div class="container d-flex justify-content-between">
+                    <h2 class="py-2"><i class="fa-solid fa-map-pin"></i> Carte du monde</h2>
+                    <p class="col-2 py-2 text-center fw-bold rounded mybg3">Zone : 0,0 → 5,5</p>
+                </div>
+                <div class="container rounded mybg3 mt-4 text-white">
+                    Test
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="./js/script.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
