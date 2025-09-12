@@ -25,8 +25,9 @@ async function getTilesAsync(x, y) {
 
 //displqy tiles img avec imageUrl
 
-function displayTiles(tiles){
+function displayTiles(tiles) {
   const container = document.getElementById('tilesContainer');
+  container.innerHTML = ""; // Nettoie avant d'ajouter
   tiles.forEach(tile => {
       const img = document.createElement('img');
       img.src = tile.imageUrl;
