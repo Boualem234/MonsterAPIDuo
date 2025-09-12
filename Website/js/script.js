@@ -4,7 +4,6 @@
 // (8,11) (9,11) (10,11) (11,11) (12,11)
 // (8,12) (9,12) (10,12) (11,12) (12,12)
 
-//mettre le radius dans l'api
 async function getTilesAsync(x, y) {
   try {
       const url = `https://localhost:7039/api/Tuiles/${x}/${y}`;
@@ -15,12 +14,26 @@ async function getTilesAsync(x, y) {
     }
     
     const tiles = await response.json();
+    console.log('Tuiles reçues:', tiles); //DEBUG
     displayTiles(tiles);
     
   } catch (error) {
     console.error('Erreur lors du chargement:', error);
     showErrorMessage('Impossible de charger les tuiles');
   }
+}
+
+//displqy tiles img avec imageUrl
+
+function displayTiles(tiles){
+  const container = document.getElementById('tilesContainer');
+  tiles.forEach(tile => {
+      const img = document.createElement('img');
+      img.src = tile.imageUrl;
+      img.alt = `Tile ${tile.id}`;
+      img.classList.add('tile-image');
+      container.appendChild(img);
+  });
 }
 
 async function getBaseTitles(){
