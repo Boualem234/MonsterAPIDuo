@@ -13,3 +13,22 @@ body{
 .mybg3{
     background-color: rgb(8, 8, 73);
 }
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(5, 125px);
+    grid-template-rows: repeat(5, 125px);
+    gap: 2px;
+    background-color: #1d3d63;
+    padding: 10px;
+    border-radius: 10px;
+    width: fit-content;
+    margin: auto;
+  }
+
+  .grid-tile {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+  }

@@ -4,10 +4,40 @@
 // (8,11) (9,11) (10,11) (11,11) (12,11)
 // (8,12) (9,12) (10,12) (11,12) (12,12)
 
+var tuile;
+
+document.addEventListener("DOMContentLoaded", async function () {
+  const url = `https://localhost:7039/api/Tuiles`;
+
+  for (let i = 1; i < 6; i++) {
+    for (let j = 1; j < 6; j++) {
+      try {
+        const response = await fetch(`${url}/${i}/${j}`, {
+          method: "GET",
+        });
+        const data = await response.json();
+
+        const imageURL = data.imageURL || "";
+        const tuileGrid = document.createElement("img");
+        tuileGrid.src = `./${imageURL}`;
+        tuileGrid.classList.add("grid-tile");
+        document.getElementById("gridtuiles").appendChild(tuileGrid);
+      } catch (error) {
+        console.error(`Failed to fetch tile (${i}, ${j}):`, error);
+      }
+    }
+  }
+});
+
 async function getTilesAsync(x, y) {
   try {
       const url = `https://localhost:7039/api/Tuiles/${x}/${y}`;
-      const response = await fetch(url);
+      await fetch(url, {
+        method: "GET"
+      }).then((response) => response.json())
+      .then(response => {
+        tuile = response.split("\"imageURL\":")[1];
+      });
     
     if (!response.ok) {
       throw new Error(`Erreur HTTP: ${response.status}`);
