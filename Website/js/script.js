@@ -6,71 +6,61 @@
 
 var tuile;
 
-document.addEventListener("DOMContentLoaded", async function () {
+document.addEventListener("DOMContentLoaded", function () {
+  const grid = document.getElementById("gridtuiles");
   const url = `https://localhost:7039/api/Tuiles`;
 
-  for (let i = 1; i < 6; i++) {
-    for (let j = 1; j < 6; j++) {
-      try {
-        const response = await fetch(`${url}/${i}/${j}`, {
-          method: "GET",
-        });
-        const data = await response.json();
+  for (let i = 1; i <= 5; i++) {
+    for (let j = 1; j <= 5; j++) {
 
-        const imageURL = data.imageURL || "";
-        const tuileGrid = document.createElement("img");
-        tuileGrid.src = `./${imageURL}`;
-        tuileGrid.classList.add("grid-tile");
-        document.getElementById("gridtuiles").appendChild(tuileGrid);
-      } catch (error) {
-        console.error(`Failed to fetch tile (${i}, ${j}):`, error);
+      // Créer le bouton
+      const button = document.createElement("button");
+      button.classList.add("tile-button");
+      button.style.border = "none";
+      button.style.background = "transparent";
+      button.style.padding = "0";
+      button.style.cursor = "pointer";
+
+      button.dataset.x = i;
+      button.dataset.y = j;
+
+      // Image par défaut
+      const tuileGrid = document.createElement("img");
+      tuileGrid.src = "images/rien.png"; 
+      tuileGrid.classList.add("grid-tile");
+
+      button.appendChild(tuileGrid);
+
+      // Au clic, on fetch et on remplace l'image
+      button.addEventListener("click", async () => {
+        try {
+          const response = await fetch(`${url}/${i}/${j}`);
+          const data = await response.json();
+          const imageURL = data.imageURL || "images/rien.png";
+
+          tuileGrid.src = `./${imageURL}`; 
+
+        } catch (error) {
+          console.error(`Failed to fetch tile (${i}, ${j}):`, error);
+        }
+      });
+
+      grid.appendChild(button);
+
+      // Précharger les 9 tuiles du centre (i=2..4, j=2..4)
+      if (i >= 2 && i <= 4 && j >= 2 && j <= 4) {
+        (async () => {
+          try {
+            const response = await fetch(`${url}/${i}/${j}`);
+            const data = await response.json();
+            const imageURL = data.imageURL || "images/rien.png";
+            tuileGrid.src = `./${imageURL}`;
+          } catch (error) {
+            console.error(`Failed to fetch central tile (${i}, ${j}):`, error);
+          }
+        })();
       }
+
     }
   }
 });
-
-async function getTilesAsync(x, y) {
-  try {
-      const url = `https://localhost:7039/api/Tuiles/${x}/${y}`;
-      await fetch(url, {
-        method: "GET"
-      }).then((response) => response.json())
-      .then(response => {
-        tuile = response.split("\"imageURL\":")[1];
-      });
-    
-    if (!response.ok) {
-      throw new Error(`Erreur HTTP: ${response.status}`);
-    }
-    
-    const tiles = await response.json();
-    console.log('Tuiles reçues:', tiles); //DEBUG
-    displayTiles(tiles);
-    
-  } catch (error) {
-    console.error('Erreur lors du chargement:', error);
-    showErrorMessage('Impossible de charger les tuiles');
-  }
-}
-
-//displqy tiles img avec imageUrl
-
-function displayTiles(tiles) {
-  const container = document.getElementById('tilesContainer');
-  container.innerHTML = ""; // Nettoie avant d'ajouter
-  tiles.forEach(tile => {
-      const img = document.createElement('img');
-      img.src = tile.imageUrl;
-      img.alt = `Tile ${tile.id}`;
-      img.classList.add('tile-image');
-      container.appendChild(img);
-  });
-}
-
-async function getBaseTitles(){
-  for (let x = 9; x <= 11; x++) {
-      for (let y = 9; y <= 11; y++) {
-          await getTilesAsync(x, y);
-      }
-  }
-}
