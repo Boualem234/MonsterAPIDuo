@@ -10,8 +10,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const grid = document.getElementById("gridtuiles");
   const url = `https://localhost:7039/api/Tuiles`;
 
-  for (let i = 1; i <= 5; i++) {
-    for (let j = 1; j <= 5; j++) {
+  for (let i = 8; i <= 12; i++) {
+    for (let j = 8; j <= 12; j++) {
 
       // Créer le bouton
       const button = document.createElement("button");
@@ -26,19 +26,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Image par défaut
       const tuileGrid = document.createElement("img");
-      tuileGrid.src = "images/rien.png"; 
+      tuileGrid.src = "images/rien.png"; // image par défaut
       tuileGrid.classList.add("grid-tile");
 
       button.appendChild(tuileGrid);
 
-      // Au clic, on fetch et on remplace l'image
+      // Au clic, fetch pour remplacer l'image
       button.addEventListener("click", async () => {
         try {
           const response = await fetch(`${url}/${i}/${j}`);
           const data = await response.json();
           const imageURL = data.imageURL || "images/rien.png";
 
-          tuileGrid.src = `./${imageURL}`; 
+          tuileGrid.src = `./${imageURL}`;
 
         } catch (error) {
           console.error(`Failed to fetch tile (${i}, ${j}):`, error);
@@ -47,8 +47,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       grid.appendChild(button);
 
-      // Précharger les 9 tuiles du centre (i=2..4, j=2..4)
-      if (i >= 2 && i <= 4 && j >= 2 && j <= 4) {
+      // Précharger les 9 tuiles centrales (9→11) car joueur au milieu
+      if (i >= 9 && i <= 11 && j >= 9 && j <= 11) {
         (async () => {
           try {
             const response = await fetch(`${url}/${i}/${j}`);
