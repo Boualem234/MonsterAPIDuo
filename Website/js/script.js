@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
   for (let i = 8; i <= 12; i++) {
     for (let j = 8; j <= 12; j++) {
 
-      // Créer le bouton
+      // Créer les bouton
       const button = document.createElement("button");
       button.classList.add("tile-button");
       button.style.border = "none";
@@ -24,14 +24,14 @@ document.addEventListener("DOMContentLoaded", function () {
       button.dataset.x = i;
       button.dataset.y = j;
 
-      // Image par défaut
+      // Image de base
       const tuileGrid = document.createElement("img");
-      tuileGrid.src = "images/rien.png"; // image par défaut
+      tuileGrid.src = "images/rien.png";
       tuileGrid.classList.add("grid-tile");
 
       button.appendChild(tuileGrid);
 
-      // Au clic, fetch pour remplacer l'image
+      // Quand on clique, fetch pour remplacer l'image
       button.addEventListener("click", async () => {
         try {
           const response = await fetch(`${url}/${i}/${j}`);
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       grid.appendChild(button);
 
-      // Précharger les 9 tuiles centrales (9→11) car joueur au milieu
+      // Précharger les 9 tuiles centrales (9→11) (car joueur au milieu)
       if (i >= 9 && i <= 11 && j >= 9 && j <= 11) {
         (async () => {
           try {
