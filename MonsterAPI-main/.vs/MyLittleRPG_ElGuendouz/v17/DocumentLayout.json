@@ -58,8 +58,7 @@
               "RelativeToolTip": "MyLittleRPG\\Models\\Tuile.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-14T20:25:32.878Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-14T20:25:32.878Z"
             },
             {
               "$type": "Document",
@@ -83,8 +82,7 @@
               "RelativeToolTip": "MyLittleRPG\\Data\\Context\\MonsterContext.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-14T19:22:15.703Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-14T19:22:15.703Z"
             },
             {
               "$type": "Document",
@@ -96,8 +94,7 @@
               "RelativeToolTip": "MyLittleRPG\\Controllers\\TuilesController.cs",
               "ViewState": "AgIAAE0AAAAAAAAAAAAAAFkAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-14T19:22:05.701Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-14T19:22:05.701Z"
             }
           ]
         }

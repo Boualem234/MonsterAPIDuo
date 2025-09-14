@@ -52,3 +52,12 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Fichiers temporaires Visual Studio
+*.db
+*.db-shm
+*.db-wal
+*.suo
+*.user
+*.json
+.vs/
