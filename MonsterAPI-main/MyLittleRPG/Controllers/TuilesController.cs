@@ -49,7 +49,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         {
             var random = new Random();
 
-            // Récupérez toutes les tuiles adjacentes en une seule requête
+            // Récupérez toutes les tuiles adjacentes
             var adjacents = _context.Tuiles
                 .Where(t =>
                     (t.PositionX == positionX - 1 && t.PositionY == positionY) ||
@@ -58,13 +58,13 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                     (t.PositionX == positionX && t.PositionY == positionY + 1))
                 .ToList();
 
-            // Comptez les types des tuiles adjacentes
+            // tuiles adjacentes
             int forestCount = adjacents.Count(t => t.Type == TypeTuile.FORET);
             int roadCount = adjacents.Count(t => t.Type == TypeTuile.ROUTE);
             int waterCount = adjacents.Count(t => t.Type == TypeTuile.EAU);
 
-            // Ajustez les probabilités
-            int roll = random.Next(1, 101); // Génère un nombre entre 1 et 100
+            // probabilités
+            int roll = random.Next(1, 101); 
             TypeTuile type;
             bool estTraversable;
 
