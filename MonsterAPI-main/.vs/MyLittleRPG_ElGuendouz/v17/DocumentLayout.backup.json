@@ -3,16 +3,16 @@
   "WorkspaceRootPath": "C:\\Bureau\\MonsterAPIDuo\\MonsterAPI-main\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{BA02638C-7137-4790-B453-91D6370114CA}|MyLittleRPG\\MyLittleRPG_ElGuendouz.csproj|c:\\bureau\\monsterapiduo\\monsterapi-main\\mylittlerpg\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{BA02638C-7137-4790-B453-91D6370114CA}|MyLittleRPG\\MyLittleRPG_ElGuendouz.csproj|solutionrelative:mylittlerpg\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{BA02638C-7137-4790-B453-91D6370114CA}|MyLittleRPG\\MyLittleRPG_ElGuendouz.csproj|c:\\bureau\\monsterapiduo\\monsterapi-main\\mylittlerpg\\controllers\\tuilescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{BA02638C-7137-4790-B453-91D6370114CA}|MyLittleRPG\\MyLittleRPG_ElGuendouz.csproj|solutionrelative:mylittlerpg\\controllers\\tuilescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{BA02638C-7137-4790-B453-91D6370114CA}|MyLittleRPG\\MyLittleRPG_ElGuendouz.csproj|c:\\bureau\\monsterapiduo\\monsterapi-main\\mylittlerpg\\data\\context\\monstercontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{BA02638C-7137-4790-B453-91D6370114CA}|MyLittleRPG\\MyLittleRPG_ElGuendouz.csproj|solutionrelative:mylittlerpg\\data\\context\\monstercontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA02638C-7137-4790-B453-91D6370114CA}|MyLittleRPG\\MyLittleRPG_ElGuendouz.csproj|c:\\bureau\\monsterapiduo\\monsterapi-main\\mylittlerpg\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{BA02638C-7137-4790-B453-91D6370114CA}|MyLittleRPG\\MyLittleRPG_ElGuendouz.csproj|solutionrelative:mylittlerpg\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,7 +22,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -46,7 +46,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Bureau\\MonsterAPIDuo\\MonsterAPI-main\\MyLittleRPG\\appsettings.json",
               "RelativeDocumentMoniker": "MyLittleRPG\\appsettings.json",
@@ -59,7 +59,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "MonsterContext.cs",
               "DocumentMoniker": "C:\\Bureau\\MonsterAPIDuo\\MonsterAPI-main\\MyLittleRPG\\Data\\Context\\MonsterContext.cs",
               "RelativeDocumentMoniker": "MyLittleRPG\\Data\\Context\\MonsterContext.cs",
@@ -67,19 +67,21 @@
               "RelativeToolTip": "MyLittleRPG\\Data\\Context\\MonsterContext.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-14T19:22:15.703Z"
+              "WhenOpened": "2025-09-14T19:22:15.703Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "TuilesController.cs",
               "DocumentMoniker": "C:\\Bureau\\MonsterAPIDuo\\MonsterAPI-main\\MyLittleRPG\\Controllers\\TuilesController.cs",
               "RelativeDocumentMoniker": "MyLittleRPG\\Controllers\\TuilesController.cs",
               "ToolTip": "C:\\Bureau\\MonsterAPIDuo\\MonsterAPI-main\\MyLittleRPG\\Controllers\\TuilesController.cs",
               "RelativeToolTip": "MyLittleRPG\\Controllers\\TuilesController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAE0AAAAAAAAAAAAAAFkAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-14T19:22:05.701Z"
+              "WhenOpened": "2025-09-14T19:22:05.701Z",
+              "EditorCaption": ""
             }
           ]
         }
