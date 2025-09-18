@@ -21,6 +21,13 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             _context = context;
         }
 
+        // GET: api/Monsters
+        [HttpGet]
+        public List<User> GetUsers()
+        {
+            return _context.User.ToList();
+        }
+
         [HttpGet("Login/{email}/{password}")]
         public async Task<ActionResult<bool>> Login(string email, string password)
         {
@@ -40,11 +47,12 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         [HttpPost("Register/")]
         public async Task<ActionResult<User>> Register(User user)
         {
-            if (_context.User.Any(u => u.email == user.email)) return BadRequest();
+            if (_context.User.Any(u => u.email == user.email)) return BadRequest("This user already exists");
+            user.utilisateurId = GetUsers().ToArray()[^1].utilisateurId + 1;
             _context.User.Add(user);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUser", new { id = user.utilisateurId }, user);
+            return Ok(user);
         }
 
         [HttpGet("Logout/{email}")]
