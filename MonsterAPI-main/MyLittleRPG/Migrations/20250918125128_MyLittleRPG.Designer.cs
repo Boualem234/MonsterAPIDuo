@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyLittleRPG_ElGuendouz.Data.Context;
 
@@ -11,9 +12,11 @@ using MyLittleRPG_ElGuendouz.Data.Context;
 namespace MyLittleRPG_ElGuendouz.Migrations
 {
     [DbContext(typeof(MonsterContext))]
-    partial class MonsterContextModelSnapshot : ModelSnapshot
+    [Migration("20250918125128_MyLittleRPG")]
+    partial class MyLittleRPG
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -152,9 +155,6 @@ namespace MyLittleRPG_ElGuendouz.Migrations
                     b.Property<string>("email")
                         .IsRequired()
                         .HasColumnType("varchar(255)");
-
-                    b.Property<bool>("isConnected")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("mdp")
                         .IsRequired()
