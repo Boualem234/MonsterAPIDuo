@@ -64,3 +64,75 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 });
+
+// fonction pour register via l'api
+async function register() {
+  const email = document.getElementById("email").value;
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+  const url = "https://localhost:7039/api/Users/Register";
+
+  const credentials = {
+    username: email,
+    mdp: password,
+    pseudo: username,
+    dateInscription: new Date().toISOString(),
+    isConnected: false
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(credentials)
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log("Registration successful:", data);
+      alert("Registration successful!");
+      window.location.href = "login.html";
+    } else {
+      console.error("Registration failed:", response.statusText);
+      alert("Registration failed. Please try again.");
+    }
+  } catch (error) {
+    console.error("Error during registration:", error);
+    alert("An error occurred. Please try again.");
+  }
+}
+
+document.getElementById("registerForm").addEventListener("submit", function (event) {
+  event.preventDefault();
+  register();
+});
+
+// fonction pour login via l'api (avec email et mdp)
+async function login() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  try {
+    const response = await fetch(`https://localhost:7039/api/Users/Login/${email}/${password}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" }
+    });
+    if (response.ok) {
+      const data = await response.json();
+      console.log("Login successful:", data);
+      alert("Login successful!");
+      window.location.href = "index.html";
+    } else {
+      console.error("Login failed:", response.statusText);
+      alert("Login failed. Please check your credentials and try again.");
+    }
+  } catch (error) {
+    console.error("Error during login:", error);
+    alert("An error occurred. Please try again.");
+  }
+}
+
+document.getElementById("loginForm").addEventListener("submit", function (event) {
+  event.preventDefault();
+  login();
+});
