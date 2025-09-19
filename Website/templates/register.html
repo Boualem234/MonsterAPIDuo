@@ -13,10 +13,10 @@
 
   <div class="rpg-card">
     <h1><i class="fa-solid fa-user-plus"></i> Inscription</h1>
-    <form method="post" id="registerForm" action="/register">
+    <form method="post" id="registerForm">
       <div class="mb-4">
         <label for="email" class="form-label">Email</label>
-        <input type="text" id="email" name="email" class="form-control" required autocomplete="email" />
+        <input type="email" id="email" name="email" class="form-control" required autocomplete="email" />
       </div>
       <div class="mb-4">
         <label for="username" class="form-label">Nom d'utilisateur</label>
@@ -29,7 +29,7 @@
       <button type="submit" class="btn btn-warning d-block mx-auto"><i class="fa-solid fa-check"></i> S'inscrire</button>
     </form>
   </div>
-
+  <script src="../js/script.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
