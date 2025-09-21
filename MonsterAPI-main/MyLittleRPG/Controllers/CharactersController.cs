@@ -31,7 +31,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             else return Ok(character);
         }
 
-        [HttpGet("Deplacement/{x}/{y}/{email}")]
+        [HttpPut("Deplacement/{x}/{y}/{email}")]
         public async Task<ActionResult<Character>> Deplacer(int x, int y, string email)
         {
             (bool, Models.User) userConnected = _context.DoesExistAndConnected(email);
