@@ -225,9 +225,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     headers: { "Content-Type": "application/json" }
                 });
                 if (response.ok) {
-                    showNotif("Déconnexion réussie !", "success");
+                    showNotif("Déconnexion réussie ! Redirection vers la page de connexion...", "success");
                     localStorage.removeItem("userEmail");
-                    window.location.href = "templates/login.html";
+                    setTimeout(() => {
+                        window.location.href = "templates/login.html";
+                    }, 2000);
                 } else {
                     const errorText = await response.text();
                     showNotif("Échec de la déconnexion : " + errorText, "error");
