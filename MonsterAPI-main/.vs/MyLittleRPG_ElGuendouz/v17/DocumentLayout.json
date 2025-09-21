@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Bureau\\MonsterAPIDuo\\MonsterAPI-main\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{BA02638C-7137-4790-B453-91D6370114CA}|MyLittleRPG\\MyLittleRPG_ElGuendouz.csproj|c:\\bureau\\monsterapiduo\\monsterapi-main\\mylittlerpg\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BA02638C-7137-4790-B453-91D6370114CA}|MyLittleRPG\\MyLittleRPG_ElGuendouz.csproj|solutionrelative:mylittlerpg\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{BA02638C-7137-4790-B453-91D6370114CA}|MyLittleRPG\\MyLittleRPG_ElGuendouz.csproj|c:\\bureau\\monsterapiduo\\monsterapi-main\\mylittlerpg\\controllers\\characterscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{BA02638C-7137-4790-B453-91D6370114CA}|MyLittleRPG\\MyLittleRPG_ElGuendouz.csproj|solutionrelative:mylittlerpg\\controllers\\characterscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -13,10 +17,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{BA02638C-7137-4790-B453-91D6370114CA}|MyLittleRPG\\MyLittleRPG_ElGuendouz.csproj|c:\\bureau\\monsterapiduo\\monsterapi-main\\mylittlerpg\\controllers\\tuilescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{BA02638C-7137-4790-B453-91D6370114CA}|MyLittleRPG\\MyLittleRPG_ElGuendouz.csproj|solutionrelative:mylittlerpg\\controllers\\tuilescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BA02638C-7137-4790-B453-91D6370114CA}|MyLittleRPG\\MyLittleRPG_ElGuendouz.csproj|c:\\bureau\\monsterapiduo\\monsterapi-main\\mylittlerpg\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BA02638C-7137-4790-B453-91D6370114CA}|MyLittleRPG\\MyLittleRPG_ElGuendouz.csproj|solutionrelative:mylittlerpg\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{BA02638C-7137-4790-B453-91D6370114CA}|MyLittleRPG\\MyLittleRPG_ElGuendouz.csproj|c:\\bureau\\monsterapiduo\\monsterapi-main\\mylittlerpg\\data\\context\\monstercontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -66,7 +66,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -102,32 +102,33 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 0,
               "Title": "UsersController.cs",
               "DocumentMoniker": "C:\\Bureau\\MonsterAPIDuo\\MonsterAPI-main\\MyLittleRPG\\Controllers\\UsersController.cs",
               "RelativeDocumentMoniker": "MyLittleRPG\\Controllers\\UsersController.cs",
               "ToolTip": "C:\\Bureau\\MonsterAPIDuo\\MonsterAPI-main\\MyLittleRPG\\Controllers\\UsersController.cs",
               "RelativeToolTip": "MyLittleRPG\\Controllers\\UsersController.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAAB8AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAEAAAAAAAAAAAAAkwB8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-18T12:57:48.458Z"
+              "WhenOpened": "2025-09-18T12:57:48.458Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "CharactersController.cs",
               "DocumentMoniker": "C:\\Bureau\\MonsterAPIDuo\\MonsterAPI-main\\MyLittleRPG\\Controllers\\CharactersController.cs",
               "RelativeDocumentMoniker": "MyLittleRPG\\Controllers\\CharactersController.cs",
               "ToolTip": "C:\\Bureau\\MonsterAPIDuo\\MonsterAPI-main\\MyLittleRPG\\Controllers\\CharactersController.cs",
               "RelativeToolTip": "MyLittleRPG\\Controllers\\CharactersController.cs",
-              "ViewState": "AgIAABEAAAAAAAAAAAAQwBEAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAACwAAAAAAAAAAAAkwBEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-18T12:56:01.233Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "MonstersController.cs",
               "DocumentMoniker": "C:\\Bureau\\MonsterAPIDuo\\MonsterAPI-main\\MyLittleRPG\\Controllers\\MonstersController.cs",
               "RelativeDocumentMoniker": "MyLittleRPG\\Controllers\\MonstersController.cs",
@@ -247,7 +248,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "TuilesController.cs",
               "DocumentMoniker": "C:\\Bureau\\MonsterAPIDuo\\MonsterAPI-main\\MyLittleRPG\\Controllers\\TuilesController.cs",
               "RelativeDocumentMoniker": "MyLittleRPG\\Controllers\\TuilesController.cs",

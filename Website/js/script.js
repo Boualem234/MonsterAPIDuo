@@ -4,6 +4,21 @@
 // (8,11) (9,11) (10,11) (11,11) (12,11)
 // (8,12) (9,12) (10,12) (11,12) (12,12)
 
+function showNotif(message, type = "info") {
+    const notif = document.getElementById("notif");
+    notif.textContent = message;
+
+    notif.style.background = 
+        type === "success" ? "green" :
+        type === "error" ? "crimson" : "rgba(0,0,0,0.8)";
+
+    notif.style.display = "block";
+
+    setTimeout(() => {
+        notif.style.display = "none";
+    }, 3000);
+}
+
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -102,13 +117,20 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
     }
-    function movePlayer(dx, dy) {
+
+    async function movePlayer(dx, dy) {
         const newX = playerPosGlobal.x + dx;
         const newY = playerPosGlobal.y + dy;
+
         if (newX >= minX && newX <= maxX && newY >= minY && newY <= maxY) {
             playerPosGlobal.x = newX;
             playerPosGlobal.y = newY;
+
+            // MAJ la vue
             updateViewport();
+
+            // MAJ en DB
+            await updatePlayerPositionInDB(newX, newY);
         }
     }
 
@@ -145,15 +167,17 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: JSON.stringify(userData)
                 });
                 if (response.ok) {
-                    alert("Registration successful! You can now log in.");
-                    window.location.href = "login.html";
+                    showNotif("Inscription réussie ! Redirection vers la page de connexion...", "success");
+                    setTimeout(() => {
+                        window.location.href = "login.html";
+                    }, 2000);
                 } else {
                     const errorText = await response.text();
-                    alert("Registration failed: " + errorText);
+                    showNotif("Échec de l'inscription : " + errorText, "error");
                 }
             } catch (error) {
-                console.error("Error during registration:", error);
-                alert("An error occurred. Please try again.");
+                showNotif("Une erreur est survenue. Veuillez réessayer.", "error");
+                console.error("Erreur durant l'inscription :", error);
             }
         });
     }
@@ -170,15 +194,47 @@ document.addEventListener("DOMContentLoaded", () => {
                     headers: { "Content-Type": "application/json" }
                 });
                 if (response.ok) {
-                    alert("Login successful!");
-                    window.location.href = "../index.html";
+                    if (response.ok) {
+                        showNotif("Connexion réussie !", "success");
+                        localStorage.setItem("userEmail", email); // sauvegarde l'email
+                        window.location.href = "../index.html";
+                    }
                 } else {
                     const errorText = await response.text();
-                    alert("Login failed: " + errorText);
+                    showNotif("Échec de la connexion : " + errorText, "error");
                 }
             } catch (error) {
                 console.error("Error during login:", error);
-                alert("An error occurred. Please try again.");
+                showNotif("Une erreur est survenue. Veuillez réessayer.", "error");
+            }
+        });
+    }
+
+    // LOGOUT /api/Users/Logout/{email}
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", async () => {
+            const email = localStorage.getItem("userEmail");
+            if (!email) {
+                showNotif("Aucun utilisateur connecté.", "error");
+                return;
+            }
+            try {
+                const response = await fetch(`https://localhost:7039/api/Users/Logout/${email}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" }
+                });
+                if (response.ok) {
+                    showNotif("Déconnexion réussie !", "success");
+                    localStorage.removeItem("userEmail");
+                    window.location.href = "templates/login.html";
+                } else {
+                    const errorText = await response.text();
+                    showNotif("Échec de la déconnexion : " + errorText, "error");
+                }
+            } catch (error) {
+                console.error("Error during logout:", error);
+                showNotif("Une erreur est survenue. Veuillez réessayer.", "error");
             }
         });
     }
@@ -186,4 +242,67 @@ document.addEventListener("DOMContentLoaded", () => {
     createGrid();
     updateViewport();
 
+    // Charger et afficher les infos du personnage
+
+    async function loadPlayerInfo() {
+        const email = localStorage.getItem("userEmail"); 
+        if (!email) {
+            console.warn("Aucun email trouvé dans le localStorage !");
+            return;
+        }
+
+        try {
+            const response = await fetch(`https://localhost:7039/api/Characters/Load/${email}`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" }
+            });
+
+            if (response.ok) {
+                const character = await response.json();
+                const persoInfoDiv = document.getElementById("perso_info");
+
+                if (persoInfoDiv) {
+                    persoInfoDiv.innerHTML = `
+                        <h5 class="text-center mb-3">Infos du Personnage</h5>
+                        <p><strong>Nom :</strong> ${character.nom}</p>
+                        <p><strong>Niveau :</strong> ${character.niveau}</p>
+                        <p><strong>Expérience :</strong> ${character.exp}</p>
+                        <p><strong>PV :</strong> ${character.pv} / ${character.pvMax}</p>
+                        <p><strong>Force :</strong> ${character.force}</p>
+                        <p><strong>Défense :</strong> ${character.def}</p>
+                        <p><strong>Position :</strong> (${character.posX}, ${character.posY})</p>
+                        <p><strong>Date de création :</strong> ${new Date(character.dateCreation).toLocaleString()}</p>
+                    `;
+                }
+            } else {
+                console.error("Impossible de charger les infos du personnage");
+            }
+        } catch (error) {
+            console.error("Erreur lors du chargement des infos du personnage :", error);
+        }
+    }
+
+    loadPlayerInfo();
+
+
+    // mettre a jour la position du personnage dans la BD
+    async function updatePlayerPositionInDB(x, y) {
+        const email = localStorage.getItem("userEmail");
+        if (!email) {
+            console.warn("Aucun email trouvé dans le localStorage !");
+            return;
+        }
+
+        try {
+            const response = await fetch(`https://localhost:7039/api/Characters/Deplacement/${x}/${y}/${email}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" }
+            });
+            if (!response.ok) {
+                console.error("Erreur lors de la mise à jour de la position du personnage");
+            }
+        } catch (error) {
+            console.error("Erreur lors de la mise à jour de la position du personnage :", error);
+        }
+    }
 });
