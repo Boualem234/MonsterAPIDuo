@@ -47,13 +47,25 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         [HttpPost("Register/")]
         public async Task<ActionResult<User>> Register(User user)
         {
-            if (_context.User.Any(u => u.email == user.email)) return BadRequest("This user already exists");
-            user.utilisateurId = GetUsers()[^1].utilisateurId + 1;
+            if (_context.User.Any(u => u.email == user.email))
+                return BadRequest("This user already exists");
+
+            var lastUser = _context.User
+                .OrderByDescending(u => u.utilisateurId)
+                .FirstOrDefault();
+
+            user.utilisateurId = (lastUser?.utilisateurId ?? 0) + 1;
+
             _context.User.Add(user);
             await _context.SaveChangesAsync();
+
+            var lastCharacter = _context.Character
+                .OrderByDescending(c => c.idPersonnage)
+                .FirstOrDefault();
+
             Character character = new Character()
             {
-                idPersonnage = _context.Character.ToArray()[^1].idPersonnage + 1,
+                idPersonnage = (lastCharacter?.idPersonnage ?? 0) + 1,
                 nom = user.pseudo,
                 niveau = 1,
                 exp = 0,
@@ -66,6 +78,9 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 utilisateurId = user.utilisateurId,
                 dateCreation = DateTime.Now
             };
+
+            _context.Character.Add(character);
+            await _context.SaveChangesAsync();
 
             return Ok(user);
         }
