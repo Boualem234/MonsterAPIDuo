@@ -19,6 +19,9 @@
     <div class="container d-flex justify-content-end mt-3">
         <button id="logoutBtn" class="btn btn-danger"><i class="fa-solid fa-right-from-bracket"></i> Déconnexion</button>
     </div>
+    <div class="container d-flex justify-content-end mt-3">
+        <button id="loginBtn" class="btn btn-warning"><i class="fa-solid fa-right-from-bracket"></i> Connexion</button>
+    </div>
     <div class="container mt-3 mb-3">
         <div class="row">
             <div class="col-2 rounded py-5 text-white">
@@ -27,14 +30,15 @@
                     <hr>
                     <p class="mt-1 mybg2 rounded text-center">Taille : 5x5</p>
                     <p class="mt-1 mybg2 rounded text-center">Zone d'affichage : 5x5 tuiles</p>
-                    <p class="mt-1 mybg2 rounded text-center">Status API : Connected</p>
-                    <p class="mt-1 mybg2 rounded text-center">Tuiles chargées : 0</p>
+                    <p id="status" class="mt-1 mybg2 rounded text-center">Status API : </p>
                 </div>
-                <div id="perso_info" class="container mybg rounded mb-4 py-3"> <!--Sats du personnages-->
-
+                <div id="perso_info" class="container mybg rounded mb-4 py-3">
+                    <p class="text-center fw-bold"><i class="fa-solid fa-user-secret"></i> Infos du Personnage</p>
+                    <hr>
                 </div>
-                <div class="container mybg rounded mb-4 py-3 d-flex flex-column align-items-center justify-content-center" style="height: 200px;">
+                <div class="container mybg rounded mb-4 py-3">
                     <p class="fw-bold mb-3 text-center"><i class="fa-solid fa-arrows-up-down-left-right"></i> Déplacement</p>
+                    <hr>
                     <div class="d-flex justify-content-center mb-2">
                         <button id="btn-up" class="btn btn-primary"><i class="fa-solid fa-arrow-up"></i></button>
                     </div>

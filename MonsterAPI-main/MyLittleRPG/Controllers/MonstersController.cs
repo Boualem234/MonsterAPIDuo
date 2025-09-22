@@ -21,6 +21,12 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             _context = context;
         }
 
+        [HttpGet("IsConnected")]
+        public ActionResult<bool> IsConnected()
+        {
+            return Ok(true);
+        }
+
         // GET: api/Monsters
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Monster>>> GetMonsters()

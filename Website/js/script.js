@@ -19,9 +19,26 @@ function showNotif(message, type = "info") {
     }, 3000);
 }
 
+async function UpdateIsConnected(){
+    var isConnected;
+    try{
+        var res = await fetch("https://localhost:7039/api/Monsters/IsConnected", {
+            method: "GET"
+        });
+        if(res.ok) isConnected = true;
+        else isConnected = false;
+    } catch(err){
+        isConnected = false;
+    }
+
+    if(!isConnected) document.getElementById("status").innerHTML = "Status API : Disconnected";
+    else document.getElementById("status").innerHTML = "Status API : Connected";
+}
+
 
 document.addEventListener("DOMContentLoaded", () => {
 
+    UpdateIsConnected();
     const grid = document.getElementById("gridtuiles");
     const viewportSize = 5;
     const half = Math.floor(viewportSize / 2);
@@ -122,15 +139,36 @@ document.addEventListener("DOMContentLoaded", () => {
         const newX = playerPosGlobal.x + dx;
         const newY = playerPosGlobal.y + dy;
 
-        if (newX >= minX && newX <= maxX && newY >= minY && newY <= maxY) {
-            playerPosGlobal.x = newX;
-            playerPosGlobal.y = newY;
+        if(newX < minX || newX > maxX || newY < minY || newY > maxY){
+            showNotif("Vous ne pouvez pas sortir des limites du monde");
+            return;
+        }
 
-            // MAJ la vue
-            updateViewport();
+        try{
+            await fetch(`${urlTuiles}/${newX}/${newY}`, {
+                method: "GET"
+            }).then(async res => {
+                if(!res.ok) throw new Error("Erreur lors du chargement");
+                else{
+                    var tuile = await res.json();
+                    if(!tuile.estTraversable){
+                        showNotif("Impossible de traverser cette tuile");
+                        return;
+                    }
+                    else{
+                        playerPosGlobal.x = newX;
+                        playerPosGlobal.y = newY;
 
-            // MAJ en DB
-            await updatePlayerPositionInDB(newX, newY);
+                        updateViewport();
+                        await updatePlayerPositionInDB(newX, newY);
+                        await loadPlayerInfo();
+                    }
+                }
+            });
+        } catch(err){
+            console.log(err);
+            showNotif("Erreur inattendue", "error");
+            return;
         }
     }
 
@@ -210,6 +248,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    const loginBtn = document.getElementById("loginBtn");
+    if(loginBtn){
+        loginBtn.addEventListener("click", async => {
+            window.location.href = "./templates/login.html"
+        })
+    }
+
     // LOGOUT /api/Users/Logout/{email}
     const logoutBtn = document.getElementById("logoutBtn");
     if (logoutBtn) {
@@ -221,7 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             try {
                 const response = await fetch(`https://localhost:7039/api/Users/Logout/${email}`, {
-                    method: "PUT",
+                    method: "POST",
                     headers: { "Content-Type": "application/json" }
                 });
                 if (response.ok) {
@@ -248,8 +293,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function loadPlayerInfo() {
         const email = localStorage.getItem("userEmail"); 
+        const persoInfoDiv = document.getElementById("perso_info");
         if (!email) {
             console.warn("Aucun email trouvé dans le localStorage !");
+            persoInfoDiv.innerHTML = `
+                <p class="text-center fw-bold"><i class="fa-solid fa-user-secret"></i> Infos du Personnage</p>
+                <hr>
+                <p><strong>Aucun utilisateur connecté</strong></p>
+            `;
             return;
         }
 
@@ -261,11 +312,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (response.ok) {
                 const character = await response.json();
-                const persoInfoDiv = document.getElementById("perso_info");
 
                 if (persoInfoDiv) {
                     persoInfoDiv.innerHTML = `
-                        <h5 class="text-center mb-3">Infos du Personnage</h5>
+                        <p class="text-center fw-bold"><i class="fa-solid fa-user-secret"></i> Infos du Personnage</p>
+                        <hr>
                         <p><strong>Nom :</strong> ${character.nom}</p>
                         <p><strong>Niveau :</strong> ${character.niveau}</p>
                         <p><strong>Expérience :</strong> ${character.exp}</p>
