@@ -4,6 +4,8 @@
 // (8,11) (9,11) (10,11) (11,11) (12,11)
 // (8,12) (9,12) (10,12) (11,12) (12,12)
 
+var villeActuelleX, villeActuelleY;
+
 function showNotif(message, type = "info") {
     const notif = document.getElementById("notif");
     notif.textContent = message;
@@ -100,19 +102,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 const oldPlayer = btn.querySelector(".player-dot");
                 if (oldPlayer) oldPlayer.remove();
 
-                // Joueur toujours au centre
                 if (row === half && col === half) {
-                    const dot = document.createElement("div");
+                    const dot = document.createElement("img");
                     dot.classList.add("player-dot");
-                    dot.style.width = "15px";
-                    dot.style.height = "15px";
-                    dot.style.borderRadius = "50%";
-                    dot.style.backgroundColor = "red";
+                    dot.style.width = "100px";
+                    dot.style.height = "100px";
                     dot.style.position = "absolute";
                     dot.style.top = "50%";
                     dot.style.left = "50%";
                     dot.style.transform = "translate(-50%, -50%)";
                     dot.style.pointerEvents = "none";
+                    dot.src = "./images/genji.png"
                     btn.appendChild(dot);
                 }
 
@@ -156,6 +156,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         return;
                     }
                     else{
+                        if(tuile.type == 4){
+                            villeActuelleX = newX;
+                            villeActuelleY = newY;
+                        }
                         playerPosGlobal.x = newX;
                         playerPosGlobal.y = newY;
 
@@ -183,6 +187,15 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.key === "ArrowLeft") movePlayer(-1, 0);
         if (e.key === "ArrowRight") movePlayer(1, 0);
     });
+
+    function TeleportToRespawn(){
+        playerPosGlobal.x = villeActuelleX;
+        playerPosGlobal.y = villeActuelleY;
+
+        updateViewport();
+        updatePlayerPositionInDB(villeActuelleX, villeActuelleY);
+        loadPlayerInfo();
+    }
 
     // REGISTER et LOGIN 
 
