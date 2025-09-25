@@ -10,6 +10,7 @@ namespace MyLittleRPG_ElGuendouz.Data.Context
         public DbSet<Tuile> Tuiles { get; set; }
         public DbSet<Character> Character { get; set; }
         public DbSet<User> User { get; set; }
+        public DbSet<InstanceMonstre> InstanceMonstre { get; set; }
 
         public MonsterContext(DbContextOptions<MonsterContext> options) : base(options) { }
 
@@ -23,6 +24,12 @@ namespace MyLittleRPG_ElGuendouz.Data.Context
                 .HasOne<User>()
                 .WithMany()
                 .HasForeignKey(c => c.utilisateurId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<InstanceMonstre>()
+                .HasOne<Monster>()
+                .WithMany()
+                .HasForeignKey(m => m.monstreID)
                 .OnDelete(DeleteBehavior.Restrict);
         }
 
