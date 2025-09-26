@@ -48,6 +48,26 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             return monster;
         }
 
+        [HttpGet("random")]
+        public async Task<ActionResult<Monster>> GetRandomMonster()
+        {
+            var count = await _context.Monsters.CountAsync();
+            if (count == 0)
+            {
+                return NotFound("Aucun monstre trouvé.");
+            }
+
+            var random = new Random();
+            int index = random.Next(count);
+
+            var monster = await _context.Monsters
+                .Skip(index)
+                .FirstOrDefaultAsync();
+
+            return Ok(monster);
+        }
+
+
         // PUT: api/Monsters/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
