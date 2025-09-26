@@ -247,7 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (response.ok) {
                     if (response.ok) {
                         showNotif("Connexion réussie !", "success");
-                        localStorage.setItem("userEmail", email); // sauvegarde l'email
+                        localStorage.setItem("userEmail", email);
                         window.location.href = "../index.html";
                     }
                 } else {
@@ -325,7 +325,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (response.ok) {
                 const character = await response.json();
-
+                playerPosGlobal.x = character.posX;
+                playerPosGlobal.y = character.posY;
+                updateViewport();
                 if (persoInfoDiv) {
                     persoInfoDiv.innerHTML = `
                         <p class="text-center fw-bold"><i class="fa-solid fa-user-secret"></i> Infos du Personnage</p>
