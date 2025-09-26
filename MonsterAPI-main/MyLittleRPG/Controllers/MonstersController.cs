@@ -48,24 +48,40 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             return monster;
         }
 
-        [HttpGet("random")]
-        public async Task<ActionResult<Monster>> GetRandomMonster()
+        [HttpGet("random/{count}")]
+        public async Task<ActionResult<IEnumerable<Monster>>> GetRandomMonsters(int count)
         {
-            var count = await _context.Monsters.CountAsync();
-            if (count == 0)
+            var totalCount = await _context.Monsters.CountAsync();
+            if (totalCount == 0)
             {
                 return NotFound("Aucun monstre trouvé.");
             }
 
+            // si le user demande plus que ce qu'on a on renvoie tout
+            if (count >= totalCount)
+            {
+                return await _context.Monsters.ToListAsync();
+            }
+
+            var allIds = await _context.Monsters
+                .Select(m => m.idMonster)
+                .ToListAsync();
+
+            // tirage aléatoire de 300 IDs uniques
             var random = new Random();
-            int index = random.Next(count);
+            var randomIds = allIds
+                .OrderBy(x => random.Next())
+                .Take(count)
+                .ToList();
 
-            var monster = await _context.Monsters
-                .Skip(index)
-                .FirstOrDefaultAsync();
+            // on récupère ensuite les monstres correspondant à ces IDs
+            var monsters = await _context.Monsters
+                .Where(m => randomIds.Contains(m.idMonster))
+                .ToListAsync();
 
-            return Ok(monster);
+            return Ok(monsters);
         }
+
 
 
         // PUT: api/Monsters/5

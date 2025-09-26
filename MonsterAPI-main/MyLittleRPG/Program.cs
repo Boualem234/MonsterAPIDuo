@@ -1,6 +1,7 @@
-using MyLittleRPG_ElGuendouz.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using MyLittleRPG_ElGuendouz.Data.Context;
+using MyLittleRPG_ElGuendouz.Models;
 using System.Configuration;
 using System.Reflection;
 using System.Text.Json.Serialization;
@@ -33,6 +34,7 @@ builder.Services.AddControllers()
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHostedService<MonstreMaintenanceService>();
 
 
 var app = builder.Build();
