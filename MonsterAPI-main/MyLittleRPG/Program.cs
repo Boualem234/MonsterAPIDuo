@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using MyLittleRPG_ElGuendouz.Data.Context;
 using MyLittleRPG_ElGuendouz.Models;
+using MyLittleRPG_ElGuendouz.Services;
 using System.Configuration;
 using System.Reflection;
 using System.Text.Json.Serialization;
