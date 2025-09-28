@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyLittleRPG_ElGuendouz.Data.Context;
 using MyLittleRPG_ElGuendouz.Models;
+using static MyLittleRPG_ElGuendouz.DTOs.TuilesDtos;
 
 namespace MyLittleRPG_ElGuendouz.Controllers
 {
@@ -30,19 +31,40 @@ namespace MyLittleRPG_ElGuendouz.Controllers
 
         // GET: api/Tuiles/5/3
         [HttpGet("{x}/{y}")]
-        public async Task<ActionResult<Tuile>> GetTuile(int x, int y)
+        public async Task<ActionResult<TuileAvecMonstresDto>> GetTuile(int x, int y)
         {
             var tuile = await _context.Tuiles.FindAsync(x, y);
 
             if (tuile == null)
             {
-                // Générer une nouvelle tuile
                 tuile = GenerateTuile(x, y);
                 _context.Tuiles.Add(tuile);
                 await _context.SaveChangesAsync();
             }
 
-            return tuile;
+            var monstres = await _context.InstanceMonstre
+                .Where(m => m.PositionX == x && m.PositionY == y)
+                .Select(m => new MonstreDto
+                {
+                    Id = m.monstreID,
+                    Niveau = m.niveau,
+                    Force = m.pointsVieMax, // ou pointsVieActuels
+                    Defense = m.pointsVieMax,
+                    HP = m.pointsVieActuels
+                })
+                .ToListAsync();
+
+            var result = new TuileAvecMonstresDto
+            {
+                PositionX = tuile.PositionX,
+                PositionY = tuile.PositionY,
+                Type = tuile.Type,
+                EstTraversable = tuile.EstTraversable,
+                ImageURL = tuile.ImageURL,
+                Monstres = monstres
+            };
+
+            return result;
         }
 
         private Tuile GenerateTuile(int positionX, int positionY)
