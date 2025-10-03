@@ -423,6 +423,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" }
             });
+            var data = response.json();
+            if(data.combat){
+                showNotif("Résultat", data.message);
+                if(!(data.resultat)){
+                    TeleportToRespawn();
+                }
+                else if(data.resultat){
+                    loadedTile = loadedTile.filter(item => !(item.x == data.character.posX && item.y == data.character.posY));
+                    updateViewport();
+                }
+            }
             if (!response.ok) {
                 console.error("Erreur lors de la mise à jour de la position du personnage");
             }

@@ -25,9 +25,9 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         [HttpGet("Load/{email}")]
         public ActionResult<Character> LoadCharacter(string email)
         {
-            (bool, Models.User) userConnected = _context.DoesExistAndConnected(email);
+            (bool, User) userConnected = _context.DoesExistAndConnected(email);
             if (!userConnected.Item1) return NotFound(); 
-            Models.Character? character = _context.Character.FirstOrDefault(c => c.utilisateurId == userConnected.Item2.utilisateurId);
+            Character? character = _context.Character.FirstOrDefault(c => c.utilisateurId == userConnected.Item2.utilisateurId);
             if (character is null) return NotFound();
             else return Ok(character);
         }
@@ -67,7 +67,8 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 character.pv -= degatsJoueur;
 
                 // combat
-                string resultat = "";
+                bool resultat = false;
+                string message = string.Empty;
                 if (instanceMonstre.pointsVieActuels <= 0)
                 {
                     // victoire du joueur
@@ -86,11 +87,13 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                         character.def++;
                         character.pvMax++;
                         character.pv = character.pvMax;
-                        resultat = $"Victoire ! Niveau augmenté. Expérience gagnée : {xpGagnee}";
+                        message = $"Victoire ! Niveau augmenté. Expérience gagnée : {xpGagnee}";
+                        resultat = true;
                     }
                     else
                     {
-                        resultat = $"Victoire ! Expérience gagnée : {xpGagnee}";
+                        message = $"Victoire ! Expérience gagnée : {xpGagnee}";
+                        resultat = true;
                     }
                 }
                 else if (character.pv <= 0)
@@ -99,12 +102,14 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                     character.posX = 0;
                     character.posY = 0;
                     character.pv = character.pvMax;
-                    resultat = "Défaite ! Vous êtes téléporté à la ville et vos HP sont restaurés.";
+                    message = "Défaite ! Vous êtes téléporté à la ville et vos HP sont restaurés.";
+                    resultat = false;
                 }
                 else
                 {
                     // le joueur reste sur sa position d'origine
-                    resultat = "Combat indécis. Vous pouvez retenter plus tard.";
+                    message = "Combat indécis. Vous pouvez retenter plus tard.";
+                    resultat = false;
                 }
 
                 await _context.SaveChangesAsync();
@@ -112,6 +117,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 {
                     Combat = true,
                     Resultat = resultat,
+                    Message = message,
                     Character = new CharacterStateDto
                     {
                         PosX = character.posX,
