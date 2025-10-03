@@ -57,8 +57,13 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 // calcul des dégâts
                 var random = new Random();
                 double facteur = random.NextDouble() * (1.25 - 0.8) + 0.8;
-                int degatsMonstre = (int)((character.force - (monstre.defenseBase + instanceMonstre.niveau)) * facteur);
-                int degatsJoueur = (int)(((monstre.forceBase + instanceMonstre.niveau) - character.def) * facteur);
+
+                int forceMonstre = monstre.forceBase + instanceMonstre.niveau;
+                int defenseMonstre = monstre.defenseBase + instanceMonstre.niveau;
+
+                int degatsMonstre = (int)((character.force - defenseMonstre) * facteur);
+                int degatsJoueur = (int)((forceMonstre - character.def) * facteur);
+
                 if (degatsMonstre <= 0) degatsMonstre = 0;
                 if (degatsJoueur <= 0) degatsJoueur = 0;
 
