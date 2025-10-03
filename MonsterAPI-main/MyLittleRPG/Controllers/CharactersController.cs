@@ -35,9 +35,12 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         [HttpPut("Deplacement/{x}/{y}/{email}")]
         public async Task<ActionResult<CombatResultDto>> Deplacer(int x, int y, string email)
         {
-            (bool, Models.User) userConnected = _context.DoesExistAndConnected(email);
+            // on regarde si l'utilisateur est connecté
+            (bool, User) userConnected = _context.DoesExistAndConnected(email);
             if (!userConnected.Item1) return NotFound("Utilisateur non connecté");
-            Models.Character? character = _context.Character.FirstOrDefault(c => c.utilisateurId == userConnected.Item2.utilisateurId);
+
+            // on regarde si l'utilisateur a un personnage (normalement oui)
+            Character? character = _context.Character.FirstOrDefault(c => c.utilisateurId == userConnected.Item2.utilisateurId);
             if (character is null) return NotFound("Personnage non trouvé");
 
             // verif si il y a un monstre sur la tuile
