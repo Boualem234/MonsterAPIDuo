@@ -423,9 +423,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" }
             });
-            var data = response.json();
+            var data = await response.json();
             if(data.combat){
-                showNotif("Résultat", data.message);
+                showNotif(data.message);
                 if(!(data.resultat)){
                     TeleportToRespawn();
                 }
