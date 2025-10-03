@@ -10,8 +10,8 @@ namespace MyLittleRPG_ElGuendouz.DTOs
             public int PositionY { get; set; }
             public TypeTuile Type { get; set; }
             public bool EstTraversable { get; set; }
-            public string ImageURL { get; set; }
-            public List<MonstreDto> Monstres { get; set; } = new();
+            public string ImageURL { get; set; } = string.Empty;
+            public MonstreDto Monstres { get; set; } = new();
         }
 
         public class MonstreDto
@@ -21,6 +21,7 @@ namespace MyLittleRPG_ElGuendouz.DTOs
             public int Force { get; set; }
             public int Defense { get; set; }
             public int HP { get; set; }
+            public string SpriteUrl { get; set; } = string.Empty;
         }
     }
 }

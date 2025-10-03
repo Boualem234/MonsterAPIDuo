@@ -4,7 +4,7 @@
 // (8,11) (9,11) (10,11) (11,11) (12,11)
 // (8,12) (9,12) (10,12) (11,12) (12,12)
 
-var villeActuelleX, villeActuelleY;
+var villeActuelleX, villeActuelleY, loadedTile = [];
 
 function showNotif(message, type = "info") {
     const notif = document.getElementById("notif");
@@ -67,10 +67,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 img.classList.add("grid-tile");
                 btn.appendChild(img);
 
+                var monstreSprite = document.createElement("img");
+                monstreSprite.classList.add("monstre-sprite");
+
                 btn.dataset.row = row;
                 btn.dataset.col = col;
 
-                // Click sur la tuile pour charger depuis l'API
                 btn.addEventListener("click", async () => {
                     const worldX = playerPosGlobal.x + col - half;
                     const worldY = playerPosGlobal.y + row - half;
@@ -78,6 +80,21 @@ document.addEventListener("DOMContentLoaded", () => {
                         const response = await fetch(`${urlTuiles}/${worldX}/${worldY}`);
                         const data = await response.json();
                         img.src = data.imageURL || "images/rien.png";
+                        if (data.monstres) {
+                            let monstreSprite = btn.querySelector(".monstre-sprite");
+                            if (!monstreSprite) {
+                                monstreSprite = document.createElement("img");
+                                monstreSprite.classList.add("monstre-sprite");
+                                btn.appendChild(monstreSprite);
+                            }
+                            monstreSprite.src = data.monstres.spriteUrl;
+                            monstreSprite.style.display = "block";
+                        } else {
+                            const monstreSprite = btn.querySelector(".monstre-sprite");
+                            if (monstreSprite) {
+                                monstreSprite.remove();
+                            }
+                        }
                     } catch (err) {
                         console.error(`Erreur tuile (${worldX},${worldY})`, err);
                         img.src = "images/rien.png";
@@ -96,9 +113,8 @@ document.addEventListener("DOMContentLoaded", () => {
             for (let col = 0; col < viewportSize; col++) {
                 const index = row * viewportSize + col;
                 const btn = buttons[index];
-                const img = btn.querySelector("img");
+                const img = btn.querySelector(".grid-tile");
 
-                // Supprimer ancien point joueur
                 const oldPlayer = btn.querySelector(".player-dot");
                 if (oldPlayer) oldPlayer.remove();
 
@@ -116,20 +132,61 @@ document.addEventListener("DOMContentLoaded", () => {
                     btn.appendChild(dot);
                 }
 
-                // Charger uniquement les tuiles autour du joueur 
                 const distance = Math.max(Math.abs(row - half), Math.abs(col - half));
                 if (distance <= playerRadius) {
                     const worldX = playerPosGlobal.x + col - half;
                     const worldY = playerPosGlobal.y + row - half;
+                    var exists = loadedTile.some(t => t.x == worldX && t.y == worldY);
                     try {
-                        const response = await fetch(`${urlTuiles}/${worldX}/${worldY}`);
-                        const data = await response.json();
-                        img.src = data.imageURL || "images/rien.png";
+                        if(!exists){
+                            const response = await fetch(`${urlTuiles}/${worldX}/${worldY}`);
+                            const data = await response.json();
+                            loadedTile.push({
+                                x: worldX,
+                                y: worldY,
+                                data: data
+                            });
+                            img.src = data.imageURL || "images/rien.png";
+                            if (data.monstres) {
+                                let monstreSprite = btn.querySelector(".monstre-sprite");
+                                if (!monstreSprite) {
+                                    monstreSprite = document.createElement("img");
+                                    monstreSprite.classList.add("monstre-sprite");
+                                    btn.appendChild(monstreSprite);
+                                }
+                                monstreSprite.src = data.monstres.spriteUrl;
+                                monstreSprite.style.display = "block";
+                            } else {
+                                const monstreSprite = btn.querySelector(".monstre-sprite");
+                                if (monstreSprite) {
+                                    monstreSprite.remove();
+                                }
+                            }
+                        }
+                        else if(exists){
+                            var tileData = loadedTile.find(t => t.x == worldX && t.y == worldY).data;
+                            img.src = tileData.imageURL || "images/rien.png";
+                            if(tileData.monstres){
+                                let monstreSprite = btn.querySelector(".monstre-sprite");
+                                if(!monstreSprite){
+                                    monstreSprite = document.createElement("img");
+                                    monstreSprite.classList.add("monstre-sprite");
+                                    btn.appendChild(monstreSprite);
+                                }
+                                monstreSprite.src = tileData.monstres.spriteUrl;
+                                monstreSprite.style.display = "block";
+                            } else {
+                                let monstreSprite = btn.querySelector(".monstre-sprite");
+                                if (monstreSprite) {
+                                    monstreSprite.remove();
+                                }
+                            }
+                        }
                     } catch (err) {
                         img.src = "images/rien.png";
                     }
                 } else {
-                    img.src = "images/rien.png"; // les tuiles plus loin restent "rien"
+                    img.src = "images/rien.png";
                 }
             }
         }

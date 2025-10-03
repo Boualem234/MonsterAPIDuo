@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyLittleRPG_ElGuendouz.Data.Context;
 using MyLittleRPG_ElGuendouz.Models;
+using MyLittleRPG_ElGuendouz.Services;
 using static MyLittleRPG_ElGuendouz.DTOs.TuilesDtos;
 
 namespace MyLittleRPG_ElGuendouz.Controllers
@@ -42,17 +43,29 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            var monstres = await _context.InstanceMonstre
-                .Where(m => m.PositionX == x && m.PositionY == y)
-                .Select(m => new MonstreDto
+            var instance = await _context.InstanceMonstre
+                .FirstOrDefaultAsync(m => m.PositionX == x && m.PositionY == y);
+
+            MonstreDto monstre = null;
+
+            if (instance != null)
+            {
+                var monstreInstance = await _context.Monsters
+                    .FirstOrDefaultAsync(m => m.idMonster == instance.monstreID);
+
+                if (monstreInstance != null)
                 {
-                    Id = m.monstreID,
-                    Niveau = m.niveau,
-                    Force = m.pointsVieMax, // ou pointsVieActuels
-                    Defense = m.pointsVieMax,
-                    HP = m.pointsVieActuels
-                })
-                .ToListAsync();
+                    monstre = new MonstreDto
+                    {
+                        Id = instance.monstreID,
+                        Niveau = instance.niveau,
+                        Force = monstreInstance.forceBase,
+                        Defense = monstreInstance.defenseBase,
+                        HP = monstreInstance.pointVieBase,
+                        SpriteUrl = monstreInstance.spriteUrl
+                    };
+                }
+            }
 
             var result = new TuileAvecMonstresDto
             {
@@ -61,7 +74,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 Type = tuile.Type,
                 EstTraversable = tuile.EstTraversable,
                 ImageURL = tuile.ImageURL,
-                Monstres = monstres
+                Monstres = monstre!
             };
 
             return result;
