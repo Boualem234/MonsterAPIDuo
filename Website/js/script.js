@@ -76,10 +76,47 @@ document.addEventListener("DOMContentLoaded", () => {
                 btn.addEventListener("click", async () => {
                     const worldX = playerPosGlobal.x + col - half;
                     const worldY = playerPosGlobal.y + row - half;
+                    var exists = loadedTile.some(t => t.x == worldX && t.y == worldY);
                     try {
                         const response = await fetch(`${urlTuiles}/${worldX}/${worldY}`);
                         const data = await response.json();
                         img.src = data.imageURL || "images/rien.png";
+                        if(exists){
+                            const myModal = new bootstrap.Modal(document.getElementById('pokeModal'));
+                            const body = document.querySelector("#pokeModal .modal-body");
+
+                            if(data.monstres){
+                                body.innerHTML = `
+                                <h5>Info tuile</h5>
+                                <p>Position x: ${worldX}</p>
+                                <p>Position y: ${worldY}</p>
+                                <p>Est traversable: ${data.estTraversable ? "Oui": "Non"}</p>
+                                <img src="${data.imageURL}">
+                                <hr>
+                                <h5>Info monstre</h5>
+                                <p>Id: ${data.monstres.id}</p>
+                                <p>Niveau: ${data.monstres.niveau}</p>
+                                <p>Force: ${data.monstres.force}</p>
+                                <p>Defense: ${data.monstres.defense}</p>
+                                <p>HP: ${data.monstres.hp}</p>
+                                <img src="${data.monstres.spriteUrl}">`;
+                            }
+                            else{
+                                body.innerHTML = `
+                                <h5>Info tuile</h5>
+                                <p>Position x: ${worldX}</p>
+                                <p>Position y: ${worldY}</p>
+                                <p>Est traversable: ${data.estTraversable ? "Oui": "Non"}</p>
+                                <img src="${data.imageURL}">`;
+                            }
+                            myModal.show();
+                        }
+                        else{
+                            loadedTile.push({
+                            x: worldX,
+                            y: worldY,
+                            data: data
+                            });
                         if (data.monstres) {
                             let monstreSprite = btn.querySelector(".monstre-sprite");
                             if (!monstreSprite) {
@@ -95,6 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 monstreSprite.remove();
                             }
                         }
+                    }
                     } catch (err) {
                         console.error(`Erreur tuile (${worldX},${worldY})`, err);
                         img.src = "images/rien.png";
