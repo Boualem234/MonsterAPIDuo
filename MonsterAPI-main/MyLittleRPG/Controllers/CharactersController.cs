@@ -25,9 +25,9 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         [HttpGet("Load/{email}")]
         public ActionResult<Character> LoadCharacter(string email)
         {
-            (bool, Models.User) userConnected = _context.DoesExistAndConnected(email);
+            (bool, User) userConnected = _context.DoesExistAndConnected(email);
             if (!userConnected.Item1) return NotFound(); 
-            Models.Character? character = _context.Character.FirstOrDefault(c => c.utilisateurId == userConnected.Item2.utilisateurId);
+            Character? character = _context.Character.FirstOrDefault(c => c.utilisateurId == userConnected.Item2.utilisateurId);
             if (character is null) return NotFound();
             else return Ok(character);
         }
@@ -35,9 +35,12 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         [HttpPut("Deplacement/{x}/{y}/{email}")]
         public async Task<ActionResult<CombatResultDto>> Deplacer(int x, int y, string email)
         {
-            (bool, Models.User) userConnected = _context.DoesExistAndConnected(email);
+            // verif si user connecté
+            (bool, User) userConnected = _context.DoesExistAndConnected(email);
             if (!userConnected.Item1) return NotFound("Utilisateur non connecté");
-            Models.Character? character = _context.Character.FirstOrDefault(c => c.utilisateurId == userConnected.Item2.utilisateurId);
+
+            // verif de l'existence du personnage
+            Character? character = _context.Character.FirstOrDefault(c => c.utilisateurId == userConnected.Item2.utilisateurId);
             if (character is null) return NotFound("Personnage non trouvé");
 
             // verif si il y a un monstre sur la tuile
@@ -54,7 +57,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 // calcul des dégâts
                 var random = new Random();
                 double facteur = random.NextDouble() * (1.25 - 0.8) + 0.8;
-     var random = new Random();
+                var random = new Random();
                 double facteur = random.NextDouble() * (1.25 - 0.8) + 0.8;
 
                 // Calculer les statistiques réelles du monstre avec le niveau
@@ -337,7 +340,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 // Combat indécis simulé
                 characterSimule.Pv = pvJoueurApres;
                 monstreSimule.Pv = pvMonstreApres;
-                resultat = "[SIMULATION] Combat indécis. Vous pourriez retenter plus tard.";
+                resultat = "[SIMULATION] Combat indécis.";
             }
 
             return Ok(new CombatResultDto
