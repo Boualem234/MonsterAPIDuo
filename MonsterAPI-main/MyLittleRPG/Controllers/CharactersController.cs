@@ -141,7 +141,8 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                         PosX = instanceMonstre.PositionX,
                         PosY = instanceMonstre.PositionY,
                         Nom = monstre.nom,
-                        Niveau = instanceMonstre.niveau
+                        Niveau = instanceMonstre.niveau,
+                        SpriteUrl = monstre.spriteUrl
                     } : null
                 });
             }
@@ -300,7 +301,8 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 PosX = instanceMonstre.PositionX,
                 PosY = instanceMonstre.PositionY,
                 Nom = monstre.nom,
-                Niveau = instanceMonstre.niveau
+                Niveau = instanceMonstre.niveau,
+                SpriteUrl = monstre.spriteUrl
             };
 
             string message = "";

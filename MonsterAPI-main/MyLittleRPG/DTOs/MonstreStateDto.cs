@@ -7,5 +7,6 @@ namespace MyLittleRPG_ElGuendouz.DTOs
         public int PosY { get; set; }
         public string Nom { get; set; } = string.Empty;
         public int Niveau { get; set; }
+        public string SpriteUrl { get; set; } = string.Empty;
     }
 }
