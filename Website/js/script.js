@@ -45,6 +45,11 @@ async function TestBattle(idMonster){
 document.addEventListener("DOMContentLoaded", () => {
     const simulator = document.getElementById('simulator');
     const email = localStorage.getItem("userEmail"); 
+    const currentPage = window.location.pathname.split("/").pop();
+    if (!email && currentPage === "index.html") {
+        window.location.href = "templates/login.html";
+    }
+    if(simulator){
     simulator.addEventListener('click', async (e) => {
         e.preventDefault();
         const monstreId = document.getElementById('simulatorID').value;
@@ -83,20 +88,25 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         simulatorModal.show();
     });
+}
     const docBody = document.body;
     const darkLink = document.getElementById('darkMode');
     const lightLink = document.getElementById('lightMode');
+    if(darkLink){
     darkLink.addEventListener('click', (e) => {
         e.preventDefault();
         docBody.classList.add('dark');
         localStorage.setItem('theme', 'dark');
     });
+}
 
+    if(lightLink){
     lightLink.addEventListener('click', (e) => {
         e.preventDefault();
         docBody.classList.remove('dark');
         localStorage.setItem('theme', 'light');
     });
+}
 
     if (localStorage.getItem('theme') === 'dark') {
         docBody.classList.add('dark');
@@ -421,7 +431,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const loginBtn = document.getElementById("loginBtn");
     if(loginBtn){
         loginBtn.addEventListener("click", async => {
-            window.location.href = "./templates/login.html"
+            window.location.href = "templates/login.html"
         })
     }
 
