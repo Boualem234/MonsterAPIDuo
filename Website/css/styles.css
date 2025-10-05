@@ -1,5 +1,39 @@
 body{
+    background-color: rgb(255, 255, 255);
+}
+
+body.dark{
     background-color: rgb(55, 55, 139);
+}
+
+.theme-toggle {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.theme-toggle a {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    background-color: #ddd;
+    color: black;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body.dark .theme-toggle a {
+    background-color: #333;
+    color: white;
+}
+
+.theme-toggle a:hover {
+    background-color: #aaa;
+}
+
+body.dark .theme-toggle a:hover {
+    background-color: #555;
 }
 
 .mybg{

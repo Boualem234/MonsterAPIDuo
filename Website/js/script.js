@@ -37,8 +37,70 @@ async function UpdateIsConnected(){
     else document.getElementById("status").innerHTML = "Status API : Connected";
 }
 
+async function TestBattle(idMonster){
+
+}
+
 
 document.addEventListener("DOMContentLoaded", () => {
+    const simulator = document.getElementById('simulator');
+    const email = localStorage.getItem("userEmail"); 
+    simulator.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const monstreId = document.getElementById('simulatorID').value;
+        const simulatorModal = new bootstrap.Modal(document.getElementById('simulatorModal'));
+        const bodyModal = document.querySelector("#simulatorModal .modal-body");
+        var response = await fetch(`https://localhost:7039/api/Characters/Simulate/${monstreId}/${email}`, {method: "GET"});
+        var data = await response.json();
+        if(data.monstre){
+            bodyModal.innerHTML = `
+            <h3>Informations de la simulation</h3>
+            <hr>
+            <h5>Informations du monstre</h5>
+            <p>Id: ${monstreId}</p>
+            <p>Nom: ${data.monstre.nom}</p>
+            <p>Niveau: ${data.monstre.niveau}</p>
+            <p>HP: ${data.monstre.pv}</p>
+            <img src="${data.monstre.spriteUrl}">
+            <hr>
+            <h5>Vos informations</h5>
+            <p>Nom: ${data.character.nom}</p>
+            <p>HP: ${data.character.pv}</p>
+            <p>Force: ${data.character.force}</p>
+            <p>Niveau: ${data.character.niveau}</p>
+            <p>Defense: ${data.character.def}</p>
+            <p>HP: ${data.character.pv}</p>
+            <hr>
+            <h5>Informations du combat</h5>
+            <p>Résultat: ${data.resultat ? "Gagné" : "Perdu"}</p>
+            <p>Message: ${data.message}</p>`;
+        }
+        else{
+            bodyModal.innerHTML = `
+            <h5>Monstre inexistant</h5>
+            <hr>
+            <p>Ce monstre n'existe pas</p>`;
+        }
+        simulatorModal.show();
+    });
+    const docBody = document.body;
+    const darkLink = document.getElementById('darkMode');
+    const lightLink = document.getElementById('lightMode');
+    darkLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        docBody.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+    });
+
+    lightLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        docBody.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+    });
+
+    if (localStorage.getItem('theme') === 'dark') {
+        docBody.classList.add('dark');
+    }
 
     UpdateIsConnected();
     const grid = document.getElementById("gridtuiles");
@@ -90,7 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <h5>Info tuile</h5>
                                 <p>Position x: ${worldX}</p>
                                 <p>Position y: ${worldY}</p>
-                                <p>Est traversable: ${data.estTraversable ? "Oui": "Non"}</p>
+                                <p>Est traversable: ${data.estTraversable ? "Oui" : "Non"}</p>
                                 <img src="${data.imageURL}">
                                 <hr>
                                 <h5>Info monstre</h5>
