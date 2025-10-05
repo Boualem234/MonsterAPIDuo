@@ -18,6 +18,8 @@ namespace MyLittleRPG_ElGuendouz.Models
         public int posY { get; set; }
         public int utilisateurId { get; set; }
         public DateTime dateCreation { get; set; }
+        public int villeX { get; set; }
+        public int villeY { get; set; }
 
         public Character() { }
 

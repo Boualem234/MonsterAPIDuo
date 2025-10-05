@@ -362,6 +362,49 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             });
         }
 
+        [HttpGet("Ville/{email}")]
+        public ActionResult<VilleDto> GetVille(string email)
+        {
+            // Vérifier la connexion du joueur
+            (bool, User) userConnected = _context.DoesExistAndConnected(email);
+            if (!userConnected.Item1) return NotFound("Utilisateur non connecté");
+            
+            Character? character = _context.Character.FirstOrDefault(c => c.utilisateurId == userConnected.Item2.utilisateurId);
+            if (character == null) return NotFound("Personnage non trouvé");
+
+            return Ok(new VilleDto
+            {
+                VilleX = character.villeX,
+                VilleY = character.villeY
+            });
+        }
+
+        [HttpPost("Ville/{email}")]
+        public async Task<ActionResult> SetVille(string email, [FromBody] VilleDto ville)
+        {
+            // Vérifier la connexion du joueur
+            (bool, User) userConnected = _context.DoesExistAndConnected(email);
+            if (!userConnected.Item1) return NotFound("Utilisateur non connecté");
+            
+            Character? character = _context.Character.FirstOrDefault(c => c.utilisateurId == userConnected.Item2.utilisateurId);
+            if (character == null) return NotFound("Personnage non trouvé");
+
+            // Mettre à jour les coordonnées de la ville
+            character.villeX = ville.VilleX;
+            character.villeY = ville.VilleY;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { 
+                message = "Ville mise à jour avec succès",
+                ville = new VilleDto
+                {
+                    VilleX = character.villeX,
+                    VilleY = character.villeY
+                }
+            });
+        }
+
         private bool CharacterExists(int id)
         {
             return _context.Character.Any(e => e.idPersonnage == id);
