@@ -113,7 +113,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 else
                 {
                     // le joueur reste sur sa position d'origine
-                    message = "Combat indécis. Vous pouvez retenter plus tard.";
+                    message = $"Combat indécis: vous avez infligé {degatsMonstre} dégâts et reçu {degatsJoueur}.";
                     resultat = false;
                 }
 
