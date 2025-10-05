@@ -57,8 +57,6 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 // calcul des dégâts
                 var random = new Random();
                 double facteur = random.NextDouble() * (1.25 - 0.8) + 0.8;
-                var random = new Random();
-                double facteur = random.NextDouble() * (1.25 - 0.8) + 0.8;
 
                 // Calculer les statistiques réelles du monstre avec le niveau
                 int forceMonstre = monstre.forceBase + instanceMonstre.niveau;
@@ -69,11 +67,13 @@ namespace MyLittleRPG_ElGuendouz.Controllers
 
                 // S'assurer que les dégâts ne sont pas négatifs
                 if (degatsMonstre <= 0) degatsMonstre = 0;
-                if (degatsJoueur <= 0) degatsJoueur = 0;e;
+                if (degatsJoueur <= 0) degatsJoueur = 0;
                 character.pv -= degatsJoueur;
 
                 // combat
-                string resultat = "";
+                bool resultat = false;
+                string message = string.Empty;
+
                 if (instanceMonstre.pointsVieActuels <= 0)
                 {
                     // victoire du joueur
@@ -92,11 +92,13 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                         character.def++;
                         character.pvMax++;
                         character.pv = character.pvMax;
-                        resultat = $"Victoire ! Niveau augmenté. Expérience gagnée : {xpGagnee}";
+                        message = $"Victoire ! Niveau augmenté. Expérience gagnée : {xpGagnee}";
+                        resultat = true;
                     }
                     else
                     {
-                        resultat = $"Victoire ! Expérience gagnée : {xpGagnee}";
+                        message = $"Victoire ! Expérience gagnée : {xpGagnee}";
+                        resultat = true;
                     }
                 }
                 else if (character.pv <= 0)
@@ -105,12 +107,14 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                     character.posX = 0;
                     character.posY = 0;
                     character.pv = character.pvMax;
-                    resultat = "Défaite ! Vous êtes téléporté à la ville et vos HP sont restaurés.";
+                    message = "Défaite ! Vous êtes téléporté à la ville et vos HP sont restaurés.";
+                    resultat = false;
                 }
                 else
                 {
                     // le joueur reste sur sa position d'origine
-                    resultat = "Combat indécis. Vous pouvez retenter plus tard.";
+                    message = "Combat indécis. Vous pouvez retenter plus tard.";
+                    resultat = false;
                 }
 
                 await _context.SaveChangesAsync();
@@ -118,6 +122,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 {
                     Combat = true,
                     Resultat = resultat,
+                    Message = message,
                     Character = new CharacterStateDto
                     {
                         PosX = character.posX,
@@ -249,7 +254,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         {
             (bool, User) userConnected = _context.DoesExistAndConnected(email);
             if (!userConnected.Item1) return NotFound("Utilisateur non connecté");
-            
+
             Character? character = _context.Character.FirstOrDefault(c => c.utilisateurId == userConnected.Item2.utilisateurId);
             if (character == null) return NotFound("Personnage non trouvé");
 
@@ -298,7 +303,8 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 Niveau = instanceMonstre.niveau
             };
 
-            string resultat = "";
+            string message = "";
+            bool resultat = false;
 
             if (pvMonstreApres <= 0)
             {
@@ -306,10 +312,10 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 monstreSimule = null; // Monstre éliminé
                 characterSimule.PosX = instanceMonstre.PositionX;
                 characterSimule.PosY = instanceMonstre.PositionY;
-                
+
                 int expGagnee = monstre.experienceBase + instanceMonstre.niveau * 10;
                 characterSimule.Exp += expGagnee;
-                
+
                 int seuilNiveau = character.niveau * 100;
                 if (characterSimule.Exp >= seuilNiveau)
                 {
@@ -318,13 +324,14 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                     characterSimule.Def++;
                     characterSimule.PvMax++;
                     characterSimule.Pv = characterSimule.PvMax;
-                    resultat = $"[SIMULATION] Victoire ! Niveau augmenté. Expérience gagnée : {expGagnee}";
+                    message = $"[SIMULATION] Victoire ! Niveau augmenté. Expérience gagnée : {expGagnee}";
                 }
                 else
                 {
                     characterSimule.Pv = pvJoueurApres;
-                    resultat = $"[SIMULATION] Victoire ! Expérience gagnée : {expGagnee}";
+                    message = $"[SIMULATION] Victoire ! Expérience gagnée : {expGagnee}";
                 }
+                resultat = true;
             }
             else if (pvJoueurApres <= 0)
             {
@@ -333,20 +340,21 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 characterSimule.PosY = 0;
                 characterSimule.Pv = character.pvMax;
                 monstreSimule.Pv = pvMonstreApres;
-                resultat = "[SIMULATION] Défaite ! Vous seriez téléporté à la ville et vos HP restaurés.";
+                message = "[SIMULATION] Défaite ! Vous seriez téléporté à la ville et vos HP restaurés.";
             }
             else
             {
                 // Combat indécis simulé
                 characterSimule.Pv = pvJoueurApres;
                 monstreSimule.Pv = pvMonstreApres;
-                resultat = "[SIMULATION] Combat indécis.";
+                message = "[SIMULATION] Combat indécis.";
             }
 
             return Ok(new CombatResultDto
             {
                 Combat = true,
                 Resultat = resultat,
+                Message = message,
                 Character = characterSimule,
                 Monstre = monstreSimule
             });
