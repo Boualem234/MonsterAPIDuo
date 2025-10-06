@@ -66,9 +66,10 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 int degatsJoueur = (int)((forceMonstre - character.def) * facteur);
 
                 // S'assurer que les dégâts ne sont pas négatifs
-                if (degatsMonstre <= 0) degatsMonstre = 0;
-                if (degatsJoueur <= 0) degatsJoueur = 0;
+                if (degatsMonstre <= 0) degatsMonstre = random.Next(10, 25);
+                if (degatsJoueur <= 0) degatsJoueur = random.Next(10, 25);
                 character.pv -= degatsJoueur;
+                instanceMonstre.pointsVieActuels -= degatsMonstre;
 
                 // combat
                 bool resultat = false;
@@ -275,8 +276,8 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             int degatsMonstre = (int)((character.force - defenseMonstre) * facteur);
             int degatsJoueur = (int)((forceMonstre - character.def) * facteur);
 
-            if (degatsMonstre <= 0) degatsMonstre = 0;
-            if (degatsJoueur <= 0) degatsJoueur = 0;
+            if (degatsMonstre <= 0) degatsMonstre = random.Next(10, 25);
+            if (degatsJoueur <= 0) degatsJoueur = random.Next(10, 25);
 
             // Simulation des PV après combat
             int pvJoueurApres = character.pv - degatsJoueur;
