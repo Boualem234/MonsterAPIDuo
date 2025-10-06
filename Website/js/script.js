@@ -43,8 +43,38 @@ async function TestBattle(idMonster){
 
 
 document.addEventListener("DOMContentLoaded", () => {
-    const simulator = document.getElementById('simulator');
     const email = localStorage.getItem("userEmail"); 
+    async function GetVille(){
+        var response = await fetch(`https://localhost:7039/api/Characters/Ville/${email}`, {method: "GET"});
+        var data = await response.json();
+        if(data.villeX != 0 && data.villeY != 0){
+            villeActuelleX = data.villeX;
+            villeActuelleY = data.villeY;
+        }
+        else{
+            villeActuelleX = 10;
+            villeActuelleY = 10;
+        }
+    }
+
+    GetVille();
+
+    async function PostVille(){
+        const villeBody = {
+            villeX: villeActuelleX,
+            villeY: villeActuelleY
+        }
+        var response = await fetch(`https://localhost:7039/api/Characters/Ville/${email}`, {
+            method: "POST",
+            headers:
+            {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(villeBody)
+        });
+    }
+
+    const simulator = document.getElementById('simulator');
     const currentPage = window.location.pathname.split("/").pop();
     if (!email && currentPage === "index.html") {
         window.location.href = "templates/login.html";
@@ -160,8 +190,8 @@ document.addEventListener("DOMContentLoaded", () => {
                             if(data.monstres){
                                 body.innerHTML = `
                                 <h5>Info tuile</h5>
-                                <p>Position x: ${worldX}</p>
-                                <p>Position y: ${worldY}</p>
+                                <p>Position X: ${worldX}</p>
+                                <p>Position Y: ${worldY}</p>
                                 <p>Est traversable: ${data.estTraversable ? "Oui" : "Non"}</p>
                                 <img src="${data.imageURL}">
                                 <hr>
@@ -176,8 +206,8 @@ document.addEventListener("DOMContentLoaded", () => {
                             else{
                                 body.innerHTML = `
                                 <h5>Info tuile</h5>
-                                <p>Position x: ${worldX}</p>
-                                <p>Position y: ${worldY}</p>
+                                <p>Position X: ${worldX}</p>
+                                <p>Position Y: ${worldY}</p>
                                 <p>Est traversable: ${data.estTraversable ? "Oui": "Non"}</p>
                                 <img src="${data.imageURL}">`;
                             }
@@ -326,6 +356,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         if(tuile.type == 4){
                             villeActuelleX = newX;
                             villeActuelleY = newY;
+                            PostVille();
                         }
                         playerPosGlobal.x = newX;
                         playerPosGlobal.y = newY;
@@ -536,7 +567,7 @@ document.addEventListener("DOMContentLoaded", () => {
             var data = await response.json();
             if(data.combat){
                 showNotif(data.message);
-                if(!(data.resultat)){
+                if(!(data.resultat) && data.message == "Défaite ! Vous êtes téléporté à la ville et vos HP sont restaurés."){
                     TeleportToRespawn();
                 }
                 else if(data.resultat){
