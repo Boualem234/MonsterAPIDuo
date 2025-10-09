@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using MyLittleRPG_ElGuendouz.Models;
 
 namespace MyLittleRPG_ElGuendouz.Data.Context
@@ -35,7 +36,16 @@ namespace MyLittleRPG_ElGuendouz.Data.Context
 
         public (bool, User) DoesExistAndConnected(string email)
         {
-            return (User.Any(u => u.email == email && u.isConnected == true), User.First(u => u.email == email));
+            try
+            {
+                (bool, User) user = (User.Any(u => u.email == email && u.isConnected == true), User.First(u => u.email == email));
+                return user;
+            }
+            catch(Exception ex) 
+            {
+                Console.WriteLine(ex.Message);
+                return (false, null);
+            }
         }
     }
 }

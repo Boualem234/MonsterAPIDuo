@@ -37,11 +37,6 @@ async function UpdateIsConnected(){
     else document.getElementById("status").innerHTML = "Status API : Connected";
 }
 
-async function TestBattle(idMonster){
-
-}
-
-
 document.addEventListener("DOMContentLoaded", () => {
     const email = localStorage.getItem("userEmail"); 
     async function GetVille(){

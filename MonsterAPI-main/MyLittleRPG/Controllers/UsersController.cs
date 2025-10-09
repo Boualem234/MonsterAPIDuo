@@ -21,12 +21,12 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             _context = context;
         }
 
-        // GET: api/Monsters
-        [HttpGet]
-        public User[] GetUsers()
-        {
-            return _context.User.ToArray();
-        }
+        //// GET: api/Monsters
+        //[HttpGet]
+        //public User[] GetUsers()
+        //{
+        //    return _context.User.ToArray();
+        //}
 
         [HttpGet("Login/{email}/{password}")]
         public async Task<ActionResult<bool>> Login(string email, string password)
