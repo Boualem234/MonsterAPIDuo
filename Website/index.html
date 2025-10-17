@@ -1,123 +1,118 @@
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link rel="stylesheet" href="./css/styles.css">
-    <link rel="icon" type="image/x-icon" href="https://cdn-icons-png.flaticon.com/512/2619/2619285.png">
-    <title>MyLittleRPG</title>
-</head>
-<body>
-    <div class="container mt-5">
-        <div class="row mt-5 mybg rounded py-5 text-white">
-            <h1 class="text-center">
-                <i class="fa-solid fa-map-location"></i> Visualiseur de carte
-            </h1>
-        </div>
-    </div>
-  <div id="notif" class="mybg text-white p-3 position-fixed top-0 end-0 m-3 rounded"></div>
-    <div class="container d-flex justify-content-end mt-3">
-        <button id="logoutBtn" class="btn btn-danger"><i class="fa-solid fa-right-from-bracket"></i> Déconnexion</button>
-    </div>
-    <div class="container d-flex justify-content-end mt-3">
-        <button id="loginBtn" class="btn btn-warning"><i class="fa-solid fa-right-from-bracket"></i> Connexion</button>
-    </div>
-    <div class="container mt-3 mb-3">
-        <div class="row">
-            <div class="col-2 rounded py-5 text-white">
-                <div class="container mybg rounded mb-4 py-3">
-                    <p class="text-center fw-bold"><i class="fa-solid fa-circle-info"></i> Informations</p>
-                    <hr>
-                    <p class="mt-1 mybg2 rounded text-center">Taille : 5x5</p>
-                    <p class="mt-1 mybg2 rounded text-center">Zone d'affichage : 5x5 tuiles</p>
-                    <p id="status" class="mt-1 mybg2 rounded text-center">Status API : </p>
-                </div>
-                <div id="perso_info" class="container mybg rounded mb-4 py-3">
-                    <p class="text-center fw-bold"><i class="fa-solid fa-user-secret"></i> Infos du Personnage</p>
-                    <hr>
-                </div>
-                <div class="container mybg rounded mb-4 py-3">
-                    <p class="fw-bold mb-3 text-center"><i class="fa-solid fa-arrows-up-down-left-right"></i> Déplacement</p>
-                    <hr>
-                    <div class="d-flex justify-content-center mb-2">
-                        <button id="btn-up" class="btn btn-primary"><i class="fa-solid fa-arrow-up"></i></button>
-                    </div>
-                    <div class="d-flex justify-content-center gap-2">
-                        <button id="btn-left" class="btn btn-primary"><i class="fa-solid fa-arrow-left"></i></button>
-                        <button id="btn-down" class="btn btn-primary"><i class="fa-solid fa-arrow-down"></i></button>
-                        <button id="btn-right" class="btn btn-primary"><i class="fa-solid fa-arrow-right"></i></button>
-                    </div>
-                </div>
-                <div class="container mybg rounded mb-4 py-3">
-                    <p class="text-center fw-bold"><i class="fa-solid fa-book"></i> Légende
-                    <hr>
-                    <p class="mt-1 mybg2 rounded">🟩 | 🌱 Herbe</p>
-                    <p class="mt-1 mybg2 rounded">🟦 | 🌊 Eau</p>
-                    <p class="mt-1 mybg2 rounded">🟫 | ⛰️ Montagne</p>
-                    <p class="mt-1 mybg2 rounded">🟧 | 🌳 Forêt</p>
-                    <p class="mt-1 mybg2 rounded">⬜ | 🏘️ Ville</p>
-                    <p class="mt-1 mybg2 rounded">⬛ | 🛣️ Route</p>
-                    <hr>
-                    <p class="mt-1 mybg2 rounded">🟥 | 🚫 Non accessible</p>
-                </div>
-            </div>
-            <div class="col-10 mt-5 rounded mybg text-white py-2">
-                <div class="container d-flex justify-content-between">
-                    <h2 class="py-2"><i class="fa-solid fa-map-pin"></i> Carte du monde</h2>
-                    <p class="col-2 py-2 text-center fw-bold rounded mybg3">Zone : 0,0 → 50,50</p>
-                </div>            
-                <div class="grid-container" id="gridtuiles">
-                </div>
-                <div class="container text-center">
-                    <hr>
-                    <h5 class="py2"><a href="" id="darkMode">Mode sombre</a> | <a href="" id="lightMode">Mode clair</a></h5>
-                </div>
-                <div class="container text-center">
-                    <hr>
-                    <label for="quantity" class="form-label">ID du monstre</label>
-                    <input type="number" class="form-control text-center" id="simulatorID" value="1" min="1" step="1">
-                    <button class="btn btn-dark mt-3" id="simulator">Simuler un combat</button>
-                </div>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+        <link rel="stylesheet" href="./css/styles.css">
+        <link rel="icon" type="image/x-icon" href="https://cdn-icons-png.flaticon.com/512/2619/2619285.png">
+        <title>MyLittleRPG</title>
+    </head>
+    <body>
+        <div class="container mt-5">
+            <div class="row mt-5 mainBackGround rounded py-5 text-white">
+                <h1 class="text-center">
+                    <i class="fa-solid fa-map-location"></i> Visualiseur de carte
+                </h1>
             </div>
         </div>
-    </div>
-    <div class="modal fade" id="pokeModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Informations sur la tuile</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-      </div>
-      <div class="modal-body">
-        
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Fermer</button>
-      </div>
-    </div>
-  </div>
-</div>
+        <div id="notif" class="mainBackGround text-white p-3 position-fixed top-0 end-0 m-3 rounded"></div>
+        <div class="container d-flex justify-content-end mt-3">
+            <button id="logoutBtn" class="btn btn-danger"><i class="fa-solid fa-right-from-bracket"></i> Déconnexion</button>
+        </div>
+        <div class="container d-flex justify-content-end mt-3">
+            <button id="loginBtn" class="btn btn-warning"><i class="fa-solid fa-right-from-bracket"></i> Connexion</button>
+        </div>
+        <div class="container mt-3 mb-3">
+            <div class="row">
+                <div class="col-2 rounded py-5 text-white">
+                    <div class="container mainBackGround rounded mb-4 py-3">
+                        <p class="text-center fw-bold"><i class="fa-solid fa-circle-info"></i> Informations</p>
+                        <hr>
+                        <p class="mt-1 secondaryBackGround rounded text-center">Taille : 50x50</p>
+                        <p class="mt-1 secondaryBackGround rounded text-center">Zone d'affichage : 5x5 tuiles</p>
+                        <p id="status" class="mt-1 secondaryBackGround rounded text-center">Status API : </p>
+                    </div>
+                    <div id="perso_info" class="container mainBackGround rounded mb-4 py-3">
+                        <p class="text-center fw-bold"><i class="fa-solid fa-user-secret"></i> Infos du Personnage</p>
+                        <hr>
+                    </div>
+                    <div class="container mainBackGround rounded mb-4 py-3">
+                        <p class="fw-bold mb-3 text-center"><i class="fa-solid fa-arrows-up-down-left-right"></i> Déplacement</p>
+                        <hr>
+                        <div class="d-flex justify-content-center mb-2">
+                            <button id="btn-up" class="btn btn-primary"><i class="fa-solid fa-arrow-up"></i></button>
+                        </div>
+                        <div class="d-flex justify-content-center gap-2">
+                            <button id="btn-left" class="btn btn-primary"><i class="fa-solid fa-arrow-left"></i></button>
+                            <button id="btn-down" class="btn btn-primary"><i class="fa-solid fa-arrow-down"></i></button>
+                            <button id="btn-right" class="btn btn-primary"><i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="container mainBackGround rounded mb-4 py-3">
+                        <p class="text-center fw-bold"><i class="fa-solid fa-book"></i> Légende
+                        <hr>
+                        <p class="mt-1 secondaryBackGround rounded">🟩 | 🌱 Herbe</p>
+                        <p class="mt-1 secondaryBackGround rounded">🟦 | 🌊 Eau</p>
+                        <p class="mt-1 secondaryBackGround rounded">🟫 | ⛰️ Montagne</p>
+                        <p class="mt-1 secondaryBackGround rounded">🟧 | 🌳 Forêt</p>
+                        <p class="mt-1 secondaryBackGround rounded">⬜ | 🏘️ Ville</p>
+                        <p class="mt-1 secondaryBackGround rounded">⬛ | 🛣️ Route</p>
+                        <hr>
+                        <p class="mt-1 secondaryBackGround rounded">🟥 | 🚫 Non accessible</p>
+                    </div>
+                </div>
+                <div class="col-10 mt-5 rounded mainBackGround text-white py-2">
+                    <div class="container d-flex justify-content-between">
+                        <h2 class="py-2"><i class="fa-solid fa-map-pin"></i> Carte du monde</h2>
+                        <p class="col-2 py-2 text-center fw-bold rounded ternaryBackGround">Zone : 0,0 → 50,50</p>
+                    </div>            
+                    <div class="grid-container" id="gridtuiles"></div>
+                    <div class="container text-center">
+                        <hr>
+                        <h5 class="py2"><a href="" id="darkMode">Mode sombre</a> | <a href="" id="lightMode">Mode clair</a></h5>
+                    </div>
+                    <div class="container text-center">
+                        <hr>
+                        <label for="quantity" class="form-label">ID du monstre</label>
+                        <input type="number" class="form-control text-center" id="simulatorID" value="1" min="1" step="1">
+                        <button class="btn btn-dark mt-3" id="simulator">Simuler un combat</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="pokeModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Informations sur la tuile</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                    </div>
+                    <div class="modal-body"></div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Fermer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-<div class="modal fade" id="simulatorModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Simulation de combat</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-      </div>
-      <div class="modal-body">
-        
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Fermer</button>
-      </div>
-    </div>
-  </div>
-</div>
-    <script src="./js/script.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.min.js"></script>
-</body>
+        <div class="modal fade" id="simulatorModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Simulation de combat</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                    </div>
+                    <div class="modal-body"></div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Fermer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="./js/script.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.min.js"></script>
+    </body>
 </html>

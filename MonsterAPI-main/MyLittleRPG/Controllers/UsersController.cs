@@ -88,7 +88,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         [HttpPost("Logout/{email}")]
         public async Task<ActionResult<bool>> Logout(string email)
         {
-            (bool, Models.User) userConnected = _context.DoesExistAndConnected(email);
+            (bool, User?) userConnected = _context.DoesExistAndConnected(email);
             if (!userConnected.Item1) return NotFound();
             else
             {

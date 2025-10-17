@@ -36,15 +36,15 @@ body.dark .theme-toggle a:hover {
     background-color: #555;
 }
 
-.mybg{
+.mainBackGround{
     background-color: rgba(147, 147, 236, 0.493);
 }
 
-.mybg2{
+.secondaryBackGround{
     background-color: rgb(135, 135, 197);
 }
 
-.mybg3{
+.ternaryBackGround{
     background-color: rgb(8, 8, 73);
 }
 

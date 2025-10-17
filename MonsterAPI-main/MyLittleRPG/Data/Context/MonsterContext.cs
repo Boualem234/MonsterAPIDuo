@@ -33,9 +33,17 @@ namespace MyLittleRPG_ElGuendouz.Data.Context
                 .OnDelete(DeleteBehavior.Restrict);
         }
 
-        public (bool, User) DoesExistAndConnected(string email)
+        public (bool, User?) DoesExistAndConnected(string email)
         {
-            return (User.Any(u => u.email == email && u.isConnected == true), User.First(u => u.email == email));
+            try
+            {
+                return (User.Any(u => u.email == email && u.isConnected == true), User.First(u => u.email == email));
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex.ToString());
+                return (false, null);
+            }
         }
     }
 }
