@@ -27,27 +27,6 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             return Ok(true);
         }
 
-        // GET: api/Monsters
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Monster>>> GetMonsters()
-        {
-            return await _context.Monsters.ToListAsync();
-        }
-
-        // GET: api/Monsters/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Monster>> GetMonster(int id)
-        {
-            var monster = await _context.Monsters.FindAsync(id);
-
-            if (monster == null)
-            {
-                return NotFound();
-            }
-
-            return monster;
-        }
-
         [HttpGet("random/{count}")]
         public async Task<ActionResult<IEnumerable<Monster>>> GetRandomMonsters(int count)
         {
@@ -82,39 +61,6 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             return Ok(monsters);
         }
 
-
-
-        // PUT: api/Monsters/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutMonster(int id, Monster monster)
-        {
-            if (id != monster.idMonster)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(monster).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MonsterExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
         // POST: api/Monsters
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
@@ -124,22 +70,6 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetMonster", new { id = monster.idMonster }, monster);
-        }
-
-        // DELETE: api/Monsters/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMonster(int id)
-        {
-            var monster = await _context.Monsters.FindAsync(id);
-            if (monster == null)
-            {
-                return NotFound();
-            }
-
-            _context.Monsters.Remove(monster);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
 
         private bool MonsterExists(int id)

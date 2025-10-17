@@ -34,7 +34,7 @@ async function UpdateIsConnected(){
 }
 
 async function GetVille(){
-    response = await fetch(`https://localhost:7039/api/Characters/Ville/${email}`, {method: "GET"});
+    response = await fetch(`${url}/Characters/Ville/${email}`, {method: "GET"});
     data = await response.json();
     if(data.villeX != 0 && data.villeY != 0){
         villeActuelleX = data.villeX;
@@ -51,7 +51,7 @@ async function PostVille(){
         villeX: villeActuelleX,
         villeY: villeActuelleY
     }
-    await fetch(`https://localhost:7039/api/Characters/Ville/${email}`, {
+    await fetch(`${url}/Characters/Ville/${email}`, {
         method: "POST",
         headers:
         {
@@ -75,7 +75,7 @@ function ModalIfSimulator(){
             simulatorModal = new bootstrap.Modal(document.getElementById('simulatorModal'));
             bodyModal = document.querySelector("#simulatorModal .modal-body");
 
-            response = await fetch(`https://localhost:7039/api/Characters/Simulate/${monstreId}/${email}`, {method: "GET"});
+            response = await fetch(`${url}/Characters/Simulate/${monstreId}/${email}`, {method: "GET"});
             data = await response.json();
 
             if(data.monstre){

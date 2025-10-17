@@ -23,13 +23,6 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             _context = context;
         }
 
-        // GET: api/Tuiles
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Tuile>>> GetTuiles()
-        {
-            return await _context.Tuiles.ToListAsync();
-        }
-
         // GET: api/Tuiles/5/3
         [HttpGet("{x}/{y}")]
         public async Task<ActionResult<TuileAvecMonstresDto>> GetTuile(int x, int y)
@@ -137,78 +130,6 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             string imageURL = $"images/{type.ToString().ToLower()}.png";
 
             return new Tuile(positionX, positionY, type, estTraversable, imageURL);
-        }
-
-        // PUT: api/Tuiles/5/3
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{x}/{y}")]
-        public async Task<IActionResult> PutTuile(int x, int y, Tuile tuile)
-        {
-            if (x != tuile.PositionX || y != tuile.PositionY)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(tuile).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TuileExists(x, y))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Tuiles
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Tuile>> PostTuile(Tuile tuile)
-        {
-            _context.Tuiles.Add(tuile);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (TuileExists(tuile.PositionX,tuile.PositionY))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CreatedAtAction("GetTuile", new { id = tuile.PositionX }, tuile);
-        }
-
-        // DELETE: api/Tuiles/5/3
-        [HttpDelete("{x}/{y}")]
-        public async Task<IActionResult> DeleteTuile(int x, int y)
-        {
-            var tuile = await _context.Tuiles.FindAsync(x, y);
-            if (tuile == null)
-            {
-                return NotFound();
-            }
-
-            _context.Tuiles.Remove(tuile);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
 
         private bool TuileExists(int x, int y)
