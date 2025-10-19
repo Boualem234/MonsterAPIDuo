@@ -29,11 +29,15 @@ async function UpdateIsConnected(){
         isConnected = false;
     }
 
-    if(!isConnected) document.getElementById("status").innerHTML = "Status API : Disconnected";
-    else document.getElementById("status").innerHTML = "Status API : Connected";
+    const statusElement = document.getElementById("status");
+    if (statusElement) {
+        if(!isConnected) statusElement.innerHTML = "Status API : Disconnected";
+        else statusElement.innerHTML = "Status API : Connected";
+    }
 }
 
 async function GetVille(){
+    if(!email) return;
     response = await fetch(`${url}/Characters/Ville/${email}`, {method: "GET"});
     data = await response.json();
     if(data.villeX != 0 && data.villeY != 0){
@@ -113,6 +117,7 @@ function ModalIfSimulator(){
 }
 
 function CreateGrid() {
+    if (!grid) return;
     grid.innerHTML = "";
     for (let row = 0; row < viewportSize; row++) {
         for (let col = 0; col < viewportSize; col++) {
