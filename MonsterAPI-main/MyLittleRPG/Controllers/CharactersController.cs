@@ -29,7 +29,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             var userConnected = _context.DoesExistAndConnected(email);
             if (!userConnected.Item1) return (false, null, null);
 
-            var character = _context.Character.FirstOrDefault(c => c.utilisateurId == userConnected.Item2.utilisateurId);
+            var character = _context.Character.FirstOrDefault(c => c.utilisateurId == userConnected.Item2!.utilisateurId);
             return (character != null, userConnected.Item2, character);
         }
 

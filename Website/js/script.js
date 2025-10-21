@@ -1,10 +1,10 @@
-var villeActuelleX, villeActuelleY, loadedTile = [], isConnected = false, response, data, errorText = "";
-var email, villeBody = {}, simulator, currentPage, monstreId, docBody, grid, playerPosGlobal = { x: 10, y: 10 };
-var simulatorModal, bodyModal, tilesModal, registerForm, loginForm, username, password, darkLink = null, lightLink = null;
-const notif = document.getElementById("notif"), viewportSize = 5, half = Math.floor(viewportSize / 2), playerRadius = 1, url = "https://localhost:7039/api";
+var villeActuelleX, villeActuelleY, tuilesChargees = [], estConnecte = false, reponse, data, texteErreur = "";
+var email, villeBody = {}, simulateur, pageActuelle, monstreId, docBody, grille, positionJoueurGlobal = { x: 10, y: 10 };
+var simulateurModal, bodyModal, tilesModal, formulaireInscription, formulaireConnexion, nomUtilisateur, mdp, lienSombre = null, lienClair = null;
+const notif = document.getElementById("notif"), taillePortVue = 5, moitie = Math.floor(taillePortVue / 2), zoneJoueur = 1, url = "https://localhost:7039/api";
 const minX = 0, minY = 0, maxX = 50, maxY = 50;
 
-function ShowNotif(message, type = "info"){
+function AfficherNotif(message, type = "info"){
     notif.textContent = message;
 
     notif.style.background = 
@@ -18,28 +18,28 @@ function ShowNotif(message, type = "info"){
     }, 3000);
 }
 
-async function UpdateIsConnected(){
+async function MettreEstConnecteAJour(){
     try{
-        response = await fetch(`${url}/Monsters/IsConnected`, {
+        reponse = await fetch(`${url}/Monsters/IsConnected`, {
             method: "GET"
         });
-        if(response.ok) isConnected = true;
-        else isConnected = false;
+        if(reponse.ok) estConnecte = true;
+        else estConnecte = false;
     } catch(err){
-        isConnected = false;
+        estConnecte = false;
     }
 
-    const statusElement = document.getElementById("status");
+    var statusElement = document.getElementById("status");
     if (statusElement) {
-        if(!isConnected) statusElement.innerHTML = "Status API : Disconnected";
-        else statusElement.innerHTML = "Status API : Connected";
+        if(!estConnecte) statusElement.innerHTML = "Status de l'API : Déconnectée";
+        else statusElement.innerHTML = "Status de l'API : Connectée";
     }
 }
 
-async function GetVille(){
+async function ObtenirVille(){
     if(!email) return;
-    response = await fetch(`${url}/Characters/Ville/${email}`, {method: "GET"});
-    data = await response.json();
+    reponse = await fetch(`${url}/Characters/Ville/${email}`, { method: "GET" });
+    data = await reponse.json();
     if(data.villeX != 0 && data.villeY != 0){
         villeActuelleX = data.villeX;
         villeActuelleY = data.villeY;
@@ -50,7 +50,7 @@ async function GetVille(){
     }
 }
 
-async function PostVille(){
+async function PosterVille(){
     villeBody = {
         villeX: villeActuelleX,
         villeY: villeActuelleY
@@ -65,22 +65,22 @@ async function PostVille(){
     });
 }
 
-function RedirectIfNotLogged(){
-    if (!email && currentPage === "index.html") {
+function RedirigerSiNonConnecte(){
+    if (!email && pageActuelle === "index.html") {
         window.location.href = "templates/login.html";
     }
 }
 
-function ModalIfSimulator(){
-    if(simulator){
-        simulator.addEventListener('click', async (e) => {
+function ModalSiSimulateur(){
+    if(simulateur){
+        simulateur.addEventListener('click', async (e) => {
             e.preventDefault();
-            monstreId = document.getElementById('simulatorID').value;
-            simulatorModal = new bootstrap.Modal(document.getElementById('simulatorModal'));
-            bodyModal = document.querySelector("#simulatorModal .modal-body");
+            monstreId = document.getElementById('simulateurID').value;
+            simulateurModal = new bootstrap.Modal(document.getElementById('simulateurModal'));
+            bodyModal = document.querySelector("#simulateurModal .modal-body");
 
-            response = await fetch(`${url}/Characters/Simulate/${monstreId}/${email}`, {method: "GET"});
-            data = await response.json();
+            reponse = await fetch(`${url}/Characters/Simulate/${monstreId}/${email}`, { method: "GET" });
+            data = await reponse.json();
 
             if(data.monstre){
                 bodyModal.innerHTML = `
@@ -111,47 +111,47 @@ function ModalIfSimulator(){
                     <hr>
                     <p>Ce monstre n'existe pas</p>`;
             }
-            simulatorModal.show();
+            simulateurModal.show();
         });
     }
 }
 
-function CreateGrid() {
-    if (!grid) return;
-    grid.innerHTML = "";
-    for (let row = 0; row < viewportSize; row++) {
-        for (let col = 0; col < viewportSize; col++) {
+function CreerGrille() {
+    if (!grille) return;
+    grille.innerHTML = "";
+    for (let row = 0; row < taillePortVue; row++) {
+        for (let col = 0; col < taillePortVue; col++) {
             var tileBtn = document.createElement("button"), tileImg = document.createElement("img");
             var tileMonstreSprite, monstreSprite = document.createElement("img");
-            tileBtn.classList.add("tile-button");
+            tileBtn.classList.add("tuile-boutton");
             tileBtn.style.border = "none";
             tileBtn.style.background = "transparent";
             tileBtn.style.padding = "0";
             tileBtn.style.cursor = "pointer";
             tileBtn.style.position = "relative";
             tileImg.src = "images/rien.png";
-            tileImg.classList.add("grid-tile");
+            tileImg.classList.add("grille-tuile");
             tileBtn.appendChild(tileImg);
             monstreSprite.classList.add("monstre-sprite");
             tileBtn.dataset.row = row;
             tileBtn.dataset.col = col;
             tileBtn.addEventListener("click", async () => {
-                var worldX = playerPosGlobal.x + col - half;
-                var worldY = playerPosGlobal.y + row - half;
-                var exists = loadedTile.some(t => t.x == worldX && t.y == worldY);
+                var mondeX = positionJoueurGlobal.x + col - moitie;
+                var mondeY = positionJoueurGlobal.y + row - moitie;
+                var exists = tuilesChargees.some(t => t.x == mondeX && t.y == mondeY);
                 try {
-                    response = await fetch(`${url}/Tuiles/${worldX}/${worldY}`);
-                    data = await response.json();
+                    reponse = await fetch(`${url}/Tuiles/${mondeX}/${mondeY}`);
+                    data = await reponse.json();
                     tileImg.src = data.imageURL || "images/rien.png";
 
                     if(exists){
                         tilesModal = new bootstrap.Modal(document.getElementById('pokeModal'));
                         bodyModal = document.querySelector("#pokeModal .modal-body");
                         if(data.monstres){
-                            body.innerHTML = `
+                            bodyModal.innerHTML = `
                                 <h5>Info tuile</h5>
-                                <p>Position X: ${worldX}</p>
-                                <p>Position Y: ${worldY}</p>
+                                <p>Position X: ${mondeX}</p>
+                                <p>Position Y: ${mondeY}</p>
                                 <p>Est traversable: ${data.estTraversable ? "Oui" : "Non"}</p>
                                 <img src="${data.imageURL}">
                                 <hr>
@@ -164,19 +164,19 @@ function CreateGrid() {
                                 <img src="${data.monstres.spriteUrl}">`;
                         }
                         else{
-                            body.innerHTML = `
+                            bodyModal.innerHTML = `
                                 <h5>Info tuile</h5>
-                                <p>Position X: ${worldX}</p>
-                                <p>Position Y: ${worldY}</p>
+                                <p>Position X: ${mondeX}</p>
+                                <p>Position Y: ${mondeY}</p>
                                 <p>Est traversable: ${data.estTraversable ? "Oui": "Non"}</p>
                                 <img src="${data.imageURL}">`;
                         }
-                        myModal.show();
+                        tilesModal.show();
                     }
                     else{
-                        loadedTile.push({
-                            x: worldX,
-                            y: worldY,
+                        tuilesChargees.push({
+                            x: mondeX,
+                            y: mondeY,
                             data: data
                         });
                         if (data.monstres) {
@@ -196,29 +196,29 @@ function CreateGrid() {
                         }
                     }
                 } catch (err) {
-                    console.error(`Erreur tuile (${worldX},${worldY})`, err);
+                    console.error(`Erreur tuile (${mondeX},${mondeY})`, err);
                     tileImg.src = "images/rien.png";
                 }
             });
-            grid.appendChild(tileBtn);
+            grille.appendChild(tileBtn);
         }
     }
 }
 
-async function UpdateViewPort() {
-    var buttons = grid.querySelectorAll("button");
+async function MettreVuePortAJour() {
+    var buttons = grille.querySelectorAll("button");
 
-    for (let row = 0; row < viewportSize; row++) {
-        for (let col = 0; col < viewportSize; col++) {
-            var index = row * viewportSize + col;
-            var indexBtn = buttons[index], indexImg = indexBtn.querySelector(".grid-tile"), indexMonstreSprite = null;
+    for (let row = 0; row < taillePortVue; row++) {
+        for (let col = 0; col < taillePortVue; col++) {
+            var index = row * taillePortVue + col;
+            var indexBtn = buttons[index], indexImg = indexBtn.querySelector(".grille-tuile"), indexMonstreSprite = null;
             var oldPlayer = indexBtn.querySelector(".player-dot");
-            var distance = Math.max(Math.abs(row - half), Math.abs(col - half));
-            var worldX = playerPosGlobal.x + col - half, worldY = playerPosGlobal.y + row - half;
+            var distance = Math.max(Math.abs(row - moitie), Math.abs(col - moitie));
+            var mondeX = positionJoueurGlobal.x + col - moitie, mondeY = positionJoueurGlobal.y + row - moitie;
 
             if (oldPlayer) oldPlayer.remove();
 
-            if (row === half && col === half) {
+            if (row === moitie && col === moitie) {
                 var dot = document.createElement("img");
                 dot.classList.add("player-dot");
                 dot.style.width = "100px";
@@ -232,17 +232,17 @@ async function UpdateViewPort() {
                 indexBtn.appendChild(dot);
             }
 
-            if (distance <= playerRadius) {
-                var exists = loadedTile.some(t => t.x == worldX && t.y == worldY);
+            if (distance <= zoneJoueur) {
+                var exists = tuilesChargees.some(t => t.x == mondeX && t.y == mondeY);
 
                 try {
                     indexMonstreSprite = indexBtn.querySelector(".monstre-sprite");
                     if(!exists){
-                        response = await fetch(`${url}/Tuiles/${worldX}/${worldY}`);
-                        data = await response.json();
-                        loadedTile.push({
-                            x: worldX,
-                            y: worldY,
+                        reponse = await fetch(`${url}/Tuiles/${mondeX}/${mondeY}`);
+                        data = await reponse.json();
+                        tuilesChargees.push({
+                            x: mondeX,
+                            y: mondeY,
                             data: data
                         });
                         indexImg.src = data.imageURL || "images/rien.png";
@@ -261,7 +261,7 @@ async function UpdateViewPort() {
                         }
                     }
                     else if(exists){
-                        var tileData = loadedTile.find(t => t.x == worldX && t.y == worldY).data;
+                        var tileData = tuilesChargees.find(t => t.x == mondeX && t.y == mondeY).data;
                         indexImg.src = tileData.imageURL || "images/rien.png";
 
                         if(tileData.monstres){
@@ -288,49 +288,49 @@ async function UpdateViewPort() {
     }
 }
 
-async function MovePlayer(dx, dy) {
-    var newX = playerPosGlobal.x + dx, newY = playerPosGlobal.y + dy, tuile;
+async function BougerJoueur(dx, dy) {
+    var nouveauX = positionJoueurGlobal.x + dx, nouveauY = positionJoueurGlobal.y + dy, tuile;
 
-    if(newX < minX || newX > maxX || newY < minY || newY > maxY){
-        ShowNotif("Vous ne pouvez pas sortir des limites du monde");
+    if(nouveauX < minX || nouveauX > maxX || nouveauY < minY || nouveauY > maxY){
+        AfficherNotif("Vous ne pouvez pas sortir des limites du monde");
         return;
     }
 
     try{
-        await fetch(`${url}/Tuiles/${newX}/${newY}`, {
+        await fetch(`${url}/Tuiles/${nouveauX}/${nouveauY}`, {
             method: "GET"
         }).then(async res => {
             if(!res.ok) throw new Error("Erreur lors du chargement");
             else{
                 tuile = await res.json();
                 if(!tuile.estTraversable){
-                    ShowNotif("Impossible de traverser cette tuile");
+                    AfficherNotif("Impossible de traverser cette tuile");
                     return;
                 }
                 else{
                     if(tuile.type == 4){
-                        villeActuelleX = newX;
-                        villeActuelleY = newY;
-                        PostVille();
+                        villeActuelleX = nouveauX;
+                        villeActuelleY = nouveauY;
+                        PosterVille();
                     }
-                    playerPosGlobal.x = newX;
-                    playerPosGlobal.y = newY;
+                    positionJoueurGlobal.x = nouveauX;
+                    positionJoueurGlobal.y = nouveauY;
 
-                    UpdateViewPort();
-                    await UpdatePlayerPositionInDB(newX, newY);
-                    await LoadPlayerInfo();
+                    MettreVuePortAJour();
+                    await MettrePositionAJourDB(nouveauX, nouveauY);
+                    await ChargerInfoJoueur();
                 }
             }
         });
     } catch(err){
         console.log(err);
-        ShowNotif("Erreur inattendue", "error");
+        AfficherNotif("Erreur inattendue", "error");
         return;
     }
 }
 
-async function UpdatePlayerPositionInDB(x, y) {
-    email = localStorage.getItem("userEmail");
+async function MettrePositionAJourDB(x, y) {
+    email = localStorage.getItem("utilisateurEmail");
 
     if (!email) {
         console.warn("Aucun email trouvé dans le localStorage !");
@@ -338,22 +338,22 @@ async function UpdatePlayerPositionInDB(x, y) {
     }
 
     try {
-        response = await fetch(`${url}/Characters/Deplacement/${x}/${y}/${email}`, {
+        reponse = await fetch(`${url}/Characters/Deplacement/${x}/${y}/${email}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" }
         });
-        data = await response.json();
+        data = await reponse.json();
         if(data.combat){
-            ShowNotif(data.message);
+            AfficherNotif(data.message);
             if(!(data.resultat) && data.message == "Défaite ! Vous êtes téléporté à la ville et vos HP sont restaurés."){
-                TeleportToRespawn();
+                TeleporterReaparition();
             }
             else if(data.resultat){
-                loadedTile = loadedTile.filter(item => !(item.x == data.character.posX && item.y == data.character.posY));
-                UpdateViewPort();
+                tuilesChargees = tuilesChargees.filter(item => !(item.x == data.character.posX && item.y == data.character.posY));
+                MettreVuePortAJour();
             }
         }
-        if (!response.ok) {
+        if (!reponse.ok) {
             console.error("Erreur lors de la mise à jour de la position du personnage");
         }
     } catch (error) {
@@ -361,135 +361,135 @@ async function UpdatePlayerPositionInDB(x, y) {
     }
 }
 
-function TeleportToRespawn(){
-    playerPosGlobal.x = villeActuelleX;
-    playerPosGlobal.y = villeActuelleY;
+function TeleporterReaparition(){
+    positionJoueurGlobal.x = villeActuelleX;
+    positionJoueurGlobal.y = villeActuelleY;
 
-    UpdateViewPort();
-    UpdatePlayerPositionInDB(villeActuelleX, villeActuelleY);
-    LoadPlayerInfo();
+    MettreVuePortAJour();
+    MettrePositionAJourDB(villeActuelleX, villeActuelleY);
+    ChargerInfoJoueur();
 }
 
-function LoadRegisterForm(){
-    registerForm = document.getElementById("registerForm");
+function ChargerFormulaireInscription(){
+    formulaireInscription = document.getElementById("formulaireInscription");
 
-    if (registerForm) {
-        registerForm.addEventListener("submit", async (event) => {
+    if (formulaireInscription) {
+        formulaireInscription.addEventListener("submit", async (event) => {
             event.preventDefault();
             email = document.getElementById("email").value;
-            username = document.getElementById("username").value;
-            password = document.getElementById("password").value;
+            nomUtilisateur = document.getElementById("nomUtilisateur").value;
+            mdp = document.getElementById("mdp").value;
             var userData = {
                 email, 
-                mdp: password, 
-                pseudo: username,
+                mdp: mdp, 
+                pseudo: nomUtilisateur,
                 dateInscription: new Date().toISOString(),
                 isConnected: true
             };
 
             try {
-                response = await fetch(`${url}/Users/Register`, {
+                reponse = await fetch(`${url}/Users/Register`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(userData)
                 });
 
-                if (response.ok) {
-                    ShowNotif("Inscription réussie ! Redirection vers la page de connexion...", "success");
+                if (reponse.ok) {
+                    AfficherNotif("Inscription réussie ! Redirection vers la page de connexion...", "success");
                     setTimeout(() => {
                         window.location.href = "login.html";
                     }, 2000);
                 }
                 else {
-                    errorText = await response.text();
-                    ShowNotif("Échec de l'inscription : " + errorText, "error");
+                    texteErreur = await reponse.text();
+                    AfficherNotif("Échec de l'inscription : " + texteErreur, "error");
                 }
             } catch (error) {
-                ShowNotif("Une erreur est survenue. Veuillez réessayer.", "error");
+                AfficherNotif("Une erreur est survenue. Veuillez réessayer.", "error");
                 console.error("Erreur durant l'inscription :", error);
             }
         });
     }
 }
 
-function LoadLoginForm(){
-    loginForm = document.getElementById("loginForm");
-    var loginBtn = document.getElementById("loginBtn");
+function ChargerFormulaireAuth(){
+    formulaireConnexion = document.getElementById("formulaireConnexion");
+    var connexionBtn = document.getElementById("connexionBtn");
 
-    if (loginForm) {
-        loginForm.addEventListener("submit", async (event) => {
+    if (formulaireConnexion) {
+        formulaireConnexion.addEventListener("submit", async (event) => {
             event.preventDefault();
             email = document.getElementById("email").value;
-            password = document.getElementById("password").value;
+            mdp = document.getElementById("mdp").value;
 
             try {
-                response = await fetch(`${url}/Users/Login/${email}/${password}`, {
+                reponse = await fetch(`${url}/Users/Login/${email}/${mdp}`, {
                     method: "GET",
                     headers: { "Content-Type": "application/json" }
                 });
 
-                if (response.ok) {
-                    ShowNotif("Connexion réussie !", "success");
-                    localStorage.setItem("userEmail", email);
+                if (reponse.ok) {
+                    AfficherNotif("Connexion réussie !", "success");
+                    localStorage.setItem("utilisateurEmail", email);
                     window.location.href = "../index.html";
                 } 
                 else {
-                    errorText = await response.text();
-                    ShowNotif("Échec de la connexion : " + errorText, "error");
+                    texteErreur = await reponse.text();
+                    AfficherNotif("Échec de la connexion : " + texteErreur, "error");
                 }
             } catch (error) {
-                console.error("Error during login:", error);
-                ShowNotif("Une erreur est survenue. Veuillez réessayer.", "error");
+                console.error("Erreur durant la connexion:", error);
+                AfficherNotif("Une erreur est survenue. Veuillez réessayer.", "error");
             }
         });
     }
 
-    if(loginBtn){
-        loginBtn.addEventListener("click", () => {
+    if(connexionBtn){
+        connexionBtn.addEventListener("click", () => {
             window.location.href = "templates/login.html"
         })
     }
 }
 
-function LoadLogout(){
-    var logoutBtn = document.getElementById("logoutBtn");
+function ChargerBoutonDeconnexion(){
+    var deconnexionBtn = document.getElementById("deconnexionBtn");
 
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", async () => {
-            email = localStorage.getItem("userEmail");
+    if (deconnexionBtn) {
+        deconnexionBtn.addEventListener("click", async () => {
+            email = localStorage.getItem("utilisateurEmail");
 
             if (!email) {
-                ShowNotif("Aucun utilisateur connecté.", "error");
+                AfficherNotif("Aucun utilisateur connecté.", "error");
                 return;
             }
 
             try {
-                response = await fetch(`${url}/Users/Logout/${email}`, {
+                reponse = await fetch(`${url}/Users/Logout/${email}`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" }
                 });
 
-                if (response.ok) {
-                    ShowNotif("Déconnexion réussie ! Redirection vers la page de connexion...", "success");
-                    localStorage.removeItem("userEmail");
+                if (reponse.ok) {
+                    AfficherNotif("Déconnexion réussie ! Redirection vers la page de connexion...", "success");
+                    localStorage.removeItem("utilisateurEmail");
                     setTimeout(() => {
                         window.location.href = "templates/login.html";
                     }, 2000);
                 } 
                 else {
-                    errorText = await response.text();
-                    ShowNotif("Échec de la déconnexion : " + errorText, "error");
+                    texteErreur = await reponse.text();
+                    AfficherNotif("Échec de la déconnexion : " + texteErreur, "error");
                 }
             } catch (error) {
-                console.error("Error during logout:", error);
-                ShowNotif("Une erreur est survenue. Veuillez réessayer.", "error");
+                console.error("Erreur durant la déconnexion:", error);
+                AfficherNotif("Une erreur est survenue. Veuillez réessayer.", "error");
             }
         })
     }
 }
 
-async function LoadPlayerInfo() {
-    email = localStorage.getItem("userEmail"); 
+async function ChargerInfoJoueur() {
+    email = localStorage.getItem("utilisateurEmail"); 
     var persoInfoDiv = document.getElementById("perso_info"), character;
 
     if (!email) {
@@ -503,16 +503,16 @@ async function LoadPlayerInfo() {
     }
 
     try {
-        response = await fetch(`${url}/Characters/Load/${email}`, {
+        reponse = await fetch(`${url}/Characters/Load/${email}`, {
             method: "GET",
             headers: { "Content-Type": "application/json" }
         });
 
-        if (response.ok) {
-            character = await response.json();
-            playerPosGlobal.x = character.posX;
-            playerPosGlobal.y = character.posY;
-            UpdateViewPort();
+        if (reponse.ok) {
+            character = await reponse.json();
+            positionJoueurGlobal.x = character.posX;
+            positionJoueurGlobal.y = character.posY;
+            MettreVuePortAJour();
 
             if (persoInfoDiv) {
                 persoInfoDiv.innerHTML = `
@@ -537,54 +537,56 @@ async function LoadPlayerInfo() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    UpdateIsConnected();
-    email = localStorage.getItem("userEmail"); 
-    simulator = document.getElementById('simulator');
-    currentPage = window.location.pathname.split("/").pop();
-    GetVille();
-    RedirectIfNotLogged();
-    ModalIfSimulator();
+    MettreEstConnecteAJour();
+    email = localStorage.getItem("utilisateurEmail"); 
+    simulateur = document.getElementById('simulateur');
+    pageActuelle = window.location.pathname.split("/").pop();
+    ObtenirVille();
+    RedirigerSiNonConnecte();
+    ModalSiSimulateur();
     docBody = document.body;
-    grid = document.getElementById("gridtuiles");
-    darkLink = document.getElementById('darkMode');
-    lightLink = document.getElementById('lightMode');
-    CreateGrid();
+    grille = document.getElementById("grilleTuiles");
+    lienSombre = document.getElementById('modeSombre');
+    lienClair = document.getElementById('modeClair');
+    CreerGrille();
 
-    if(darkLink){
-        darkLink.addEventListener('click', (e) => {
+    if(lienSombre){
+        lienSombre.addEventListener('click', (e) => {
             e.preventDefault();
-            docBody.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
+            docBody.classList.add('sombre');
+            localStorage.setItem('theme', 'sombre');
         });
     }
 
-    if(lightLink){
-        lightLink.addEventListener('click', (e) => {
+    if(lienClair){
+        lienClair.addEventListener('click', (e) => {
             e.preventDefault();
-            docBody.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
+            docBody.classList.remove('sombre');
+            localStorage.setItem('theme', 'clair');
         });
     }
 
-    if (localStorage.getItem('theme') === 'dark') {
-        docBody.classList.add('dark');
+    if (localStorage.getItem('theme') === 'sombre') {
+        docBody.classList.add('sombre');
     }
     
-    document.getElementById("btn-up")?.addEventListener("click", () => MovePlayer(0, -1));
-    document.getElementById("btn-down")?.addEventListener("click", () => MovePlayer(0, 1));
-    document.getElementById("btn-left")?.addEventListener("click", () => MovePlayer(-1, 0));
-    document.getElementById("btn-right")?.addEventListener("click", () => MovePlayer(1, 0));
+    document.getElementById("btn-up")?.addEventListener("click", () => BougerJoueur(0, -1));
+    document.getElementById("btn-down")?.addEventListener("click", () => BougerJoueur(0, 1));
+    document.getElementById("btn-left")?.addEventListener("click", () => BougerJoueur(-1, 0));
+    document.getElementById("btn-right")?.addEventListener("click", () => BougerJoueur(1, 0));
 
     document.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowUp") MovePlayer(0, -1);
-        if (e.key === "ArrowDown") MovePlayer(0, 1);
-        if (e.key === "ArrowLeft") MovePlayer(-1, 0);
-        if (e.key === "ArrowRight") MovePlayer(1, 0);
+        if (e.key === "ArrowUp") BougerJoueur(0, -1);
+        if (e.key === "ArrowDown") BougerJoueur(0, 1);
+        if (e.key === "ArrowLeft") BougerJoueur(-1, 0);
+        if (e.key === "ArrowRight") BougerJoueur(1, 0);
     });
 
-    LoadRegisterForm();
-    LoadLoginForm();
-    LoadLogout();
-    UpdateViewPort();
-    LoadPlayerInfo();
+    ChargerFormulaireInscription();
+    ChargerFormulaireAuth();
+    ChargerBoutonDeconnexion();
+    if(pageActuelle === "index.html"){
+        MettreVuePortAJour();
+        ChargerInfoJoueur();
+    }
 });

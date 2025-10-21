@@ -10,34 +10,34 @@
     </head>
     <body>
         <div class="container mt-5">
-            <div class="row mt-5 mainBackGround rounded py-5 text-white">
+            <div class="row mt-5 fondPrincipal rounded py-5 text-white">
                 <h1 class="text-center">
                     <i class="fa-solid fa-map-location"></i> Visualiseur de carte
                 </h1>
             </div>
         </div>
-        <div id="notif" class="mainBackGround text-white p-3 position-fixed top-0 end-0 m-3 rounded"></div>
+        <div id="notif" class="fondPrincipal text-white p-3 position-fixed top-0 end-0 m-3 rounded"></div>
         <div class="container d-flex justify-content-end mt-3">
-            <button id="logoutBtn" class="btn btn-danger"><i class="fa-solid fa-right-from-bracket"></i> Déconnexion</button>
+            <button id="deconnexionBtn" class="btn btn-danger"><i class="fa-solid fa-right-from-bracket"></i> Déconnexion</button>
         </div>
         <div class="container d-flex justify-content-end mt-3">
-            <button id="loginBtn" class="btn btn-warning"><i class="fa-solid fa-right-from-bracket"></i> Connexion</button>
+            <button id="connexionBtn" class="btn btn-warning"><i class="fa-solid fa-right-from-bracket"></i> Connexion</button>
         </div>
         <div class="container mt-3 mb-3">
             <div class="row">
                 <div class="col-2 rounded py-5 text-white">
-                    <div class="container mainBackGround rounded mb-4 py-3">
+                    <div class="container fondPrincipal rounded mb-4 py-3">
                         <p class="text-center fw-bold"><i class="fa-solid fa-circle-info"></i> Informations</p>
                         <hr>
-                        <p class="mt-1 secondaryBackGround rounded text-center">Taille : 50x50</p>
-                        <p class="mt-1 secondaryBackGround rounded text-center">Zone d'affichage : 5x5 tuiles</p>
-                        <p id="status" class="mt-1 secondaryBackGround rounded text-center">Status API : </p>
+                        <p class="mt-1 fondSecondaire rounded text-center">Taille : 50x50</p>
+                        <p class="mt-1 fondSecondaire rounded text-center">Zone d'affichage : 5x5 tuiles</p>
+                        <p id="status" class="mt-1 fondSecondaire rounded text-center">Status API : </p>
                     </div>
-                    <div id="perso_info" class="container mainBackGround rounded mb-4 py-3">
+                    <div id="perso_info" class="container fondPrincipal rounded mb-4 py-3">
                         <p class="text-center fw-bold"><i class="fa-solid fa-user-secret"></i> Infos du Personnage</p>
                         <hr>
                     </div>
-                    <div class="container mainBackGround rounded mb-4 py-3">
+                    <div class="container fondPrincipal rounded mb-4 py-3">
                         <p class="fw-bold mb-3 text-center"><i class="fa-solid fa-arrows-up-down-left-right"></i> Déplacement</p>
                         <hr>
                         <div class="d-flex justify-content-center mb-2">
@@ -49,34 +49,34 @@
                             <button id="btn-right" class="btn btn-primary"><i class="fa-solid fa-arrow-right"></i></button>
                         </div>
                     </div>
-                    <div class="container mainBackGround rounded mb-4 py-3">
+                    <div class="container fondPrincipal rounded mb-4 py-3">
                         <p class="text-center fw-bold"><i class="fa-solid fa-book"></i> Légende
                         <hr>
-                        <p class="mt-1 secondaryBackGround rounded">🟩 | 🌱 Herbe</p>
-                        <p class="mt-1 secondaryBackGround rounded">🟦 | 🌊 Eau</p>
-                        <p class="mt-1 secondaryBackGround rounded">🟫 | ⛰️ Montagne</p>
-                        <p class="mt-1 secondaryBackGround rounded">🟧 | 🌳 Forêt</p>
-                        <p class="mt-1 secondaryBackGround rounded">⬜ | 🏘️ Ville</p>
-                        <p class="mt-1 secondaryBackGround rounded">⬛ | 🛣️ Route</p>
+                        <p class="mt-1 fondSecondaire rounded">🟩 | 🌱 Herbe</p>
+                        <p class="mt-1 fondSecondaire rounded">🟦 | 🌊 Eau</p>
+                        <p class="mt-1 fondSecondaire rounded">🟫 | ⛰️ Montagne</p>
+                        <p class="mt-1 fondSecondaire rounded">🟧 | 🌳 Forêt</p>
+                        <p class="mt-1 fondSecondaire rounded">⬜ | 🏘️ Ville</p>
+                        <p class="mt-1 fondSecondaire rounded">⬛ | 🛣️ Route</p>
                         <hr>
-                        <p class="mt-1 secondaryBackGround rounded">🟥 | 🚫 Non accessible</p>
+                        <p class="mt-1 fondSecondaire rounded">🟥 | 🚫 Non accessible</p>
                     </div>
                 </div>
-                <div class="col-10 mt-5 rounded mainBackGround text-white py-2">
+                <div class="col-10 mt-5 rounded fondPrincipal text-white py-2">
                     <div class="container d-flex justify-content-between">
                         <h2 class="py-2"><i class="fa-solid fa-map-pin"></i> Carte du monde</h2>
-                        <p class="col-2 py-2 text-center fw-bold rounded ternaryBackGround">Zone : 0,0 → 50,50</p>
+                        <p class="col-2 py-2 text-center fw-bold rounded fondTernaire">Zone : 0,0 → 50,50</p>
                     </div>            
-                    <div class="grid-container" id="gridtuiles"></div>
+                    <div class="grille-container" id="grilleTuiles"></div>
                     <div class="container text-center">
                         <hr>
-                        <h5 class="py2"><a href="" id="darkMode">Mode sombre</a> | <a href="" id="lightMode">Mode clair</a></h5>
+                        <h5 class="py2"><a href="" id="modeSombre">Mode sombre</a> | <a href="" id="modeClair">Mode clair</a></h5>
                     </div>
                     <div class="container text-center">
                         <hr>
                         <label for="quantity" class="form-label">ID du monstre</label>
-                        <input type="number" class="form-control text-center" id="simulatorID" value="1" min="1" step="1">
-                        <button class="btn btn-dark mt-3" id="simulator">Simuler un combat</button>
+                        <input type="number" class="form-control text-center" id="simulateurID" value="1" min="1" step="1">
+                        <button class="btn btn-dark mt-3" id="simulateur">Simuler un combat</button>
                     </div>
                 </div>
             </div>
@@ -96,7 +96,7 @@
             </div>
         </div>
 
-        <div class="modal fade" id="simulatorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal fade" id="simulateurModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
