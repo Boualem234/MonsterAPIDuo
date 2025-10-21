@@ -27,109 +27,84 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         [HttpGet("{x}/{y}")]
         public async Task<ActionResult<TuileAvecMonstresDto>> GetTuile(int x, int y)
         {
-            var tuile = await _context.Tuiles.FindAsync(x, y);
+            var tuile = await _context.Tuiles.FindAsync(x, y) ?? await CreateAndSaveTuileAsync(x, y);
+            var monstre = await GetMonstreAsync(x, y);
 
-            if (tuile == null)
-            {
-                tuile = GenerateTuile(x, y);
-                _context.Tuiles.Add(tuile);
-                await _context.SaveChangesAsync();
-            }
-
-            var instance = await _context.InstanceMonstre
-                .FirstOrDefaultAsync(m => m.PositionX == x && m.PositionY == y);
-
-            MonstreDto monstre = null;
-
-            if (instance != null)
-            {
-                var monstreInstance = await _context.Monsters
-                    .FirstOrDefaultAsync(m => m.idMonster == instance.monstreID);
-
-                if (monstreInstance != null)
-                {
-                    monstre = new MonstreDto
-                    {
-                        Id = instance.monstreID,
-                        Niveau = instance.niveau,
-                        Force = monstreInstance.forceBase,
-                        Defense = monstreInstance.defenseBase,
-                        HP = monstreInstance.pointVieBase,
-                        SpriteUrl = monstreInstance.spriteUrl
-                    };
-                }
-            }
-
-            var result = new TuileAvecMonstresDto
+            return new TuileAvecMonstresDto
             {
                 PositionX = tuile.PositionX,
                 PositionY = tuile.PositionY,
                 Type = tuile.Type,
                 EstTraversable = tuile.EstTraversable,
                 ImageURL = tuile.ImageURL,
-                Monstres = monstre!
+                Monstres = monstre
             };
+        }
 
-            return result;
+        private async Task<Tuile> CreateAndSaveTuileAsync(int x, int y)
+        {
+            var tuile = GenerateTuile(x, y);
+            _context.Tuiles.Add(tuile);
+            await _context.SaveChangesAsync();
+            return tuile;
+        }
+
+        private async Task<MonstreDto?> GetMonstreAsync(int x, int y)
+        {
+            var instance = await _context.InstanceMonstre
+                .FirstOrDefaultAsync(m => m.PositionX == x && m.PositionY == y);
+
+            if (instance == null) return null;
+
+            var monstreInstance = await _context.Monsters
+                .FirstOrDefaultAsync(m => m.idMonster == instance.monstreID);
+
+            return monstreInstance == null ? null : new MonstreDto
+            {
+                Id = instance.monstreID,
+                Niveau = instance.niveau,
+                Force = monstreInstance.forceBase,
+                Defense = monstreInstance.defenseBase,
+                HP = monstreInstance.pointVieBase,
+                SpriteUrl = monstreInstance.spriteUrl
+            };
         }
 
         private Tuile GenerateTuile(int positionX, int positionY)
         {
             var random = new Random();
+            var adjacents = GetAdjacentTuiles(positionX, positionY);
 
-            // Récupérez toutes les tuiles adjacentes
-            var adjacents = _context.Tuiles
+            int forestCount = adjacents.Count(t => t.Type == TypeTuile.FORET);
+            int roadCount = adjacents.Count(t => t.Type == TypeTuile.ROUTE);
+            int waterCount = adjacents.Count(t => t.Type == TypeTuile.EAU);
+
+            int roll = random.Next(1, 101);
+            var (type, estTraversable) = DetermineTuileType(roll, forestCount, roadCount, waterCount);
+
+            string imageURL = $"images/{type.ToString().ToLower()}.png";
+            return new Tuile(positionX, positionY, type, estTraversable, imageURL);
+        }
+
+        private List<Tuile> GetAdjacentTuiles(int positionX, int positionY)
+        {
+            return _context.Tuiles
                 .Where(t =>
                     (t.PositionX == positionX - 1 && t.PositionY == positionY) ||
                     (t.PositionX == positionX + 1 && t.PositionY == positionY) ||
                     (t.PositionX == positionX && t.PositionY == positionY - 1) ||
                     (t.PositionX == positionX && t.PositionY == positionY + 1))
                 .ToList();
+        }
 
-            // tuiles adjacentes
-            int forestCount = adjacents.Count(t => t.Type == TypeTuile.FORET);
-            int roadCount = adjacents.Count(t => t.Type == TypeTuile.ROUTE);
-            int waterCount = adjacents.Count(t => t.Type == TypeTuile.EAU);
-
-            // probabilités
-            int roll = random.Next(1, 101); 
-            TypeTuile type;
-            bool estTraversable;
-
-            if (roll <= 20 + forestCount * 10) // Augmente la probabilité de forêt
-            {
-                type = TypeTuile.FORET;
-                estTraversable = true;
-            }
-            else if (roll <= 40 + roadCount * 10) // Augmente la probabilité de route
-            {
-                type = TypeTuile.ROUTE;
-                estTraversable = true;
-            }
-            else if (roll <= 60 + waterCount * 10) // Augmente la probabilité d'eau
-            {
-                type = TypeTuile.EAU;
-                estTraversable = false;
-            }
-            else if (roll <= 70)
-            {
-                type = TypeTuile.MONTAGNE;
-                estTraversable = false;
-            }
-            else if (roll <= 85)
-            {
-                type = TypeTuile.HERBE;
-                estTraversable = true;
-            }
-            else
-            {
-                type = TypeTuile.VILLE;
-                estTraversable = true;
-            }
-
-            string imageURL = $"images/{type.ToString().ToLower()}.png";
-
-            return new Tuile(positionX, positionY, type, estTraversable, imageURL);
+        private (TypeTuile type, bool estTraversable) DetermineTuileType(int roll, int forestCount, int roadCount, int waterCount)
+        {
+            if (roll <= 20 + forestCount * 10) return (TypeTuile.FORET, true);
+            if (roll <= 40 + roadCount * 10) return (TypeTuile.ROUTE, true);
+            if (roll <= 60 + waterCount * 10) return (TypeTuile.EAU, false);
+            if (roll <= 70) return (TypeTuile.MONTAGNE, false);
+            if (roll <= 85) return (TypeTuile.HERBE, true);
+            return (TypeTuile.VILLE, true);
         }
 
         private bool TuileExists(int x, int y)
