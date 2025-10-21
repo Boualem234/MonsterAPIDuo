@@ -14,18 +14,22 @@ namespace MyLittleRPG_ElGuendouz.Data.Context
 
         public MonsterContext(DbContextOptions<MonsterContext> options) : base(options) { }
 
+        // Configuration des relations et des contraintes
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Configuration de l'index unique sur l'email de l'utilisateur
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.email)
                 .IsUnique();
 
+            // Configuration de la relation entre Character et User
             modelBuilder.Entity<Character>()
                 .HasOne<User>()
                 .WithMany()
                 .HasForeignKey(c => c.utilisateurId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Configuration de la relation entre InstanceMonstre et Monster
             modelBuilder.Entity<InstanceMonstre>()
                 .HasOne<Monster>()
                 .WithMany()
@@ -33,6 +37,7 @@ namespace MyLittleRPG_ElGuendouz.Data.Context
                 .OnDelete(DeleteBehavior.Restrict);
         }
 
+        // Méthode pour vérifier si un utilisateur existe et est connecté
         public (bool, User?) DoesExistAndConnected(string email)
         {
             try

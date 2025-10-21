@@ -21,6 +21,8 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             _context = context;
         }
 
+
+        // Il s'agit d'un endpoint pour la connexion d'un utilisateur.
         [HttpGet("Login/{email}/{password}")]
         public async Task<ActionResult<bool>> Login(string email, string password)
         {
@@ -37,6 +39,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             }
         }
 
+        // Il s'agit d'un endpoint pour l'inscription d'un nouvel utilisateur.
         [HttpPost("Register/")]
         public async Task<ActionResult<User>> Register(User user)
         {
@@ -78,6 +81,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             return Ok(user);
         }
 
+        // Il s'agit d'un endpoint pour la déconnexion d'un utilisateur.
         [HttpPost("Logout/{email}")]
         public async Task<ActionResult<bool>> Logout(string email)
         {

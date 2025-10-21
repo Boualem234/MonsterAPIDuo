@@ -23,7 +23,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             _context = context;
         }
 
-        // GET: api/Tuiles/5/3
+        // endpoint pour obtenir une tuile à des coordonnées spécifiques
         [HttpGet("{x}/{y}")]
         public async Task<ActionResult<TuileAvecMonstresDto>> GetTuile(int x, int y)
         {
@@ -41,6 +41,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             };
         }
 
+        // Crée une nouvelle tuile, la sauvegarde dans la base de données, et la retourne
         private async Task<Tuile> CreateAndSaveTuileAsync(int x, int y)
         {
             var tuile = GenerateTuile(x, y);
@@ -49,6 +50,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             return tuile;
         }
 
+        // Récupère les informations du monstre à une position donnée
         private async Task<MonstreDto?> GetMonstreAsync(int x, int y)
         {
             var instance = await _context.InstanceMonstre
@@ -70,6 +72,8 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             };
         }
 
+
+        // Génère une tuile basée sur les tuiles adjacentes
         private Tuile GenerateTuile(int positionX, int positionY)
         {
             var random = new Random();
@@ -86,6 +90,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             return new Tuile(positionX, positionY, type, estTraversable, imageURL);
         }
 
+        // Récupère les tuiles adjacentes à une position donnée
         private List<Tuile> GetAdjacentTuiles(int positionX, int positionY)
         {
             return _context.Tuiles
@@ -97,6 +102,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 .ToList();
         }
 
+        // Détermine le type de tuile basé sur les tuiles adjacentes
         private (TypeTuile type, bool estTraversable) DetermineTuileType(int roll, int forestCount, int roadCount, int waterCount)
         {
             if (roll <= 20 + forestCount * 10) return (TypeTuile.FORET, true);
@@ -107,6 +113,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             return (TypeTuile.VILLE, true);
         }
 
+        // Vérifie si une tuile existe déjà à des coordonnées spécifiques
         private bool TuileExists(int x, int y)
         {
             return _context.Tuiles.Any(e => e.PositionX == x && e.PositionY == y);
