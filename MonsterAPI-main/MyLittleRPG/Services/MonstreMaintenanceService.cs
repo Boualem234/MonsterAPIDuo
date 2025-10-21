@@ -59,8 +59,11 @@ namespace MyLittleRPG_ElGuendouz.Services
                 var baseMonsters = await GetRandomMonstersAsync(toGenerate, cancellationToken);
 
                 var emptyTiles = await context.Tuiles
-                    .Where(t => t.EstTraversable && t.Type != TypeTuile.VILLE && !context.InstanceMonstre.Any(m => m.PositionX == t.PositionX && m.PositionY == t.PositionY))
-                    .ToListAsync(cancellationToken);
+                           .Where(t => t.EstTraversable
+                                       && t.Type != TypeTuile.VILLE
+                                       && !(t.PositionX == 10 && t.PositionY == 10) // Exclure la position (10, 10)
+                                       && !context.InstanceMonstre.Any(m => m.PositionX == t.PositionX && m.PositionY == t.PositionY))
+                           .ToListAsync(cancellationToken);
 
                 emptyTiles = emptyTiles.OrderBy(_ => _random.Next()).Take(toGenerate).ToList();
 
