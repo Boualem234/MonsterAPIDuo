@@ -9,8 +9,6 @@ namespace MyLittleRPG_ElGuendouz.Services
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<MonstreMaintenanceService> _logger;
         private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(30);
-        private const int GRID_WIDTH = 50;
-        private const int GRID_HEIGHT = 50;
         private readonly Random _random = new Random();
 
         public MonstreMaintenanceService(IServiceProvider serviceProvider, ILogger<MonstreMaintenanceService> logger)

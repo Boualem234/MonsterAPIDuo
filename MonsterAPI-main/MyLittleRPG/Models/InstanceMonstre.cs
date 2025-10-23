@@ -16,7 +16,6 @@ namespace MyLittleRPG_ElGuendouz.Models
 
         public InstanceMonstre(int positionX, int positionY, int monstreID, int niveau, int pointsVieMax, int pointsVieActuels)
         {
-
             PositionX = positionX;
             PositionY = positionY;
             this.monstreID = monstreID;

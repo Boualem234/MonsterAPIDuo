@@ -26,7 +26,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         [HttpGet("Login/{email}/{password}")]
         public async Task<ActionResult<bool>> Login(string email, string password)
         {
-            Models.User? user = _context.User.FirstOrDefault(u => u.email == email);
+            User? user = _context.User.FirstOrDefault(u => u.email == email);
             if (user is null) return NotFound(false);
             if (user.mdp != password) return Unauthorized(false);
             else
@@ -46,7 +46,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             if (_context.User.Any(u => u.email == user.email))
                 return BadRequest("This user already exists");
 
-            var lastUser = _context.User
+            User? lastUser = _context.User
                 .OrderByDescending(u => u.utilisateurId)
                 .FirstOrDefault();
 
@@ -55,7 +55,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             _context.User.Add(user);
             await _context.SaveChangesAsync();
 
-            var lastCharacter = _context.Character
+            Character? lastCharacter = _context.Character
                 .OrderByDescending(c => c.idPersonnage)
                 .FirstOrDefault();
 

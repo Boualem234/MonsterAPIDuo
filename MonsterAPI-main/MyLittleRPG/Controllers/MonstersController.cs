@@ -30,7 +30,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         [HttpGet("random/{count}")]
         public async Task<ActionResult<IEnumerable<Monster>>> GetRandomMonsters(int count)
         {
-            var totalCount = await _context.Monsters.CountAsync();
+            int totalCount = await _context.Monsters.CountAsync();
             if (totalCount == 0)
             {
                 return NotFound("Aucun monstre trouvé.");
@@ -42,19 +42,19 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 return await _context.Monsters.ToListAsync();
             }
 
-            var allIds = await _context.Monsters
+            List<int> allIds = await _context.Monsters
                 .Select(m => m.idMonster)
                 .ToListAsync();
 
             // tirage aléatoire de 300 IDs uniques
-            var random = new Random();
-            var randomIds = allIds
+            Random random = new Random();
+            List<int> randomIds = allIds
                 .OrderBy(x => random.Next())
                 .Take(count)
                 .ToList();
 
             // on récupère ensuite les monstres correspondant à ces IDs
-            var monsters = await _context.Monsters
+            List<Monster> monsters = await _context.Monsters
                 .Where(m => randomIds.Contains(m.idMonster))
                 .ToListAsync();
 
@@ -70,11 +70,6 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetMonster", new { id = monster.idMonster }, monster);
-        }
-
-        private bool MonsterExists(int id)
-        {
-            return _context.Monsters.Any(e => e.idMonster == id);
         }
     }
 }

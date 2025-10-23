@@ -27,8 +27,8 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         [HttpGet("{x}/{y}")]
         public async Task<ActionResult<TuileAvecMonstresDto>> GetTuile(int x, int y)
         {
-            var tuile = await _context.Tuiles.FindAsync(x, y) ?? await CreateAndSaveTuileAsync(x, y);
-            var monstre = await GetMonstreAsync(x, y);
+            Tuile tuile = await _context.Tuiles.FindAsync(x, y) ?? await CreateAndSaveTuileAsync(x, y);
+            MonstreDto? monstre = await GetMonstreAsync(x, y);
 
             return new TuileAvecMonstresDto
             {
@@ -37,14 +37,14 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 Type = tuile.Type,
                 EstTraversable = tuile.EstTraversable,
                 ImageURL = tuile.ImageURL,
-                Monstres = monstre
+                Monstres = monstre!
             };
         }
 
         // Crée une nouvelle tuile, la sauvegarde dans la base de données, et la retourne
         private async Task<Tuile> CreateAndSaveTuileAsync(int x, int y)
         {
-            var tuile = GenerateTuile(x, y);
+            Tuile tuile = GenerateTuile(x, y);
             _context.Tuiles.Add(tuile);
             await _context.SaveChangesAsync();
             return tuile;
@@ -53,12 +53,12 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         // Récupère les informations du monstre à une position donnée
         private async Task<MonstreDto?> GetMonstreAsync(int x, int y)
         {
-            var instance = await _context.InstanceMonstre
+            InstanceMonstre? instance = await _context.InstanceMonstre
                 .FirstOrDefaultAsync(m => m.PositionX == x && m.PositionY == y);
 
             if (instance == null) return null;
 
-            var monstreInstance = await _context.Monsters
+            Monster? monstreInstance = await _context.Monsters
                 .FirstOrDefaultAsync(m => m.idMonster == instance.monstreID);
 
             return monstreInstance == null ? null : new MonstreDto
@@ -76,15 +76,17 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         // Génère une tuile basée sur les tuiles adjacentes
         private Tuile GenerateTuile(int positionX, int positionY)
         {
-            var random = new Random();
-            var adjacents = GetAdjacentTuiles(positionX, positionY);
+            Random random = new Random();
+            List<Tuile> adjacents = GetAdjacentTuiles(positionX, positionY);
 
             int forestCount = adjacents.Count(t => t.Type == TypeTuile.FORET);
             int roadCount = adjacents.Count(t => t.Type == TypeTuile.ROUTE);
             int waterCount = adjacents.Count(t => t.Type == TypeTuile.EAU);
 
             int roll = random.Next(1, 101);
-            var (type, estTraversable) = DetermineTuileType(roll, forestCount, roadCount, waterCount);
+            (TypeTuile, bool) typeEstTraversable = DetermineTuileType(roll, forestCount, roadCount, waterCount);
+            TypeTuile type = typeEstTraversable.Item1;
+            bool estTraversable = typeEstTraversable.Item2;
 
             string imageURL = $"images/{type.ToString().ToLower()}.png";
             return new Tuile(positionX, positionY, type, estTraversable, imageURL);
@@ -111,12 +113,6 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             if (roll <= 70) return (TypeTuile.MONTAGNE, false);
             if (roll <= 85) return (TypeTuile.HERBE, true);
             return (TypeTuile.VILLE, true);
-        }
-
-        // Vérifie si une tuile existe déjà à des coordonnées spécifiques
-        private bool TuileExists(int x, int y)
-        {
-            return _context.Tuiles.Any(e => e.PositionX == x && e.PositionY == y);
         }
     }
 }

@@ -22,15 +22,15 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             _context = context;
         }
 
-        private (bool IsValid, User? User, Character? Character) ValidateUserAndCharacter(string email)
+        private (bool IsValid, Character? Character) ValidateUserAndCharacter(string email)
         {
-            if (string.IsNullOrWhiteSpace(email)) return (false, null, null);
+            if (string.IsNullOrWhiteSpace(email)) return (false, null);
 
-            var userConnected = _context.DoesExistAndConnected(email);
-            if (!userConnected.Item1) return (false, null, null);
+            (bool, User?) userConnected = _context.DoesExistAndConnected(email);
+            if (!userConnected.Item1) return (false, null);
 
-            var character = _context.Character.FirstOrDefault(c => c.utilisateurId == userConnected.Item2!.utilisateurId);
-            return (character != null, userConnected.Item2, character);
+            Character? character = _context.Character.FirstOrDefault(c => c.utilisateurId == userConnected.Item2!.utilisateurId);
+            return (character != null, character);
         }
 
         private CharacterStateDto CreateCharacterStateDto(Character character)
@@ -51,7 +51,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
 
         private (int degatsMonstre, int degatsJoueur) CalculerDegats(Character character, Monster monstre, InstanceMonstre instanceMonstre)
         {
-            var random = new Random();
+            Random random = new Random();
             double facteur = random.NextDouble() * (1.25 - 0.8) + 0.8;
 
             int forceMonstre = monstre.forceBase + instanceMonstre.niveau;
@@ -60,8 +60,8 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             int degatsMonstre = (int)((character.force - defenseMonstre) * facteur);
             int degatsJoueur = (int)((forceMonstre - character.def) * facteur);
 
-            if (degatsMonstre <= 0) degatsMonstre = 0;
-            if (degatsJoueur <= 0) degatsJoueur = 0;
+            if (degatsMonstre <= 0) degatsMonstre = random.Next(10, 25);
+            if (degatsJoueur <= 0) degatsJoueur = random.Next(10, 25);
 
             return (degatsMonstre, degatsJoueur);
         }
@@ -69,37 +69,41 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         [HttpGet("Load/{email}")]
         public ActionResult<Character> LoadCharacter(string email)
         {
-            var validation = ValidateUserAndCharacter(email);
-            if (!validation.IsValid) return NotFound();
-            return Ok(validation.Character);
+            (bool, Character?) validation = ValidateUserAndCharacter(email);
+            if (!validation.Item1) return NotFound();
+            return Ok(validation.Item2);
         }
 
         [HttpPut("Deplacement/{x}/{y}/{email}")]
         public async Task<ActionResult<CombatResultDto>> Deplacer(int x, int y, string email)
         {
-            var validation = ValidateUserAndCharacter(email);
-            if (!validation.IsValid) return NotFound("Utilisateur non connecté ou personnage non trouvé");
+            (bool, Character?) validation = ValidateUserAndCharacter(email);
+            if (!validation.Item1) return NotFound("Utilisateur non connecté ou personnage non trouvé");
 
-            var character = validation.Character!;
+            Character character = validation.Item2!;
+            InstanceMonstre? instanceMonstre = _context.InstanceMonstre.FirstOrDefault(m => m.PositionX == x && m.PositionY == y);
+
+            if (x != character.posX + 1 && x != character.posX - 1 && y != character.posY + 1 && y != character.posY - 1)
+            {
+                return BadRequest("Mouvement invalide");
+            }
 
             // verif si il y a un monstre sur la tuile
-            var instanceMonstre = _context.InstanceMonstre.FirstOrDefault(m => m.PositionX == x && m.PositionY == y);
 
             if (instanceMonstre != null)
             {
-                var monstre = _context.Monsters.FirstOrDefault(m => m.idMonster == instanceMonstre.monstreID);
+                Monster? monstre = _context.Monsters.FirstOrDefault(m => m.idMonster == instanceMonstre.monstreID);
                 if (monstre == null) return NotFound("Monstre non trouvé");
 
                 // calcul des dégâts
-                var (degatsMonstre, degatsJoueur) = CalculerDegats(character, monstre, instanceMonstre);
+                (int, int) degats = CalculerDegats(character, monstre, instanceMonstre);
+                int degatsJoueur = degats.Item1, degatsMonstre = degats.Item2;
+                bool resultat = false;
+                string message;
 
                 // Appliquer les dégâts aux deux combattants
                 instanceMonstre.pointsVieActuels -= degatsMonstre;
                 character.pv -= degatsJoueur;
-
-                // combat
-                bool resultat = false;
-                string message;
 
                 if (instanceMonstre.pointsVieActuels <= 0)
                 {
@@ -175,29 +179,29 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             }
         }
 
-
         [HttpGet("Simulate/{monstreId}/{email}")]
         public ActionResult<CombatResultDto> Simulate(int monstreId, string email)
         {
-            var validation = ValidateUserAndCharacter(email);
-            if (!validation.IsValid) return NotFound("Utilisateur non connecté ou personnage non trouvé");
+            (bool, Character?) validation = ValidateUserAndCharacter(email);
+            if (!validation.Item1) return NotFound("Utilisateur non connecté ou personnage non trouvé");
 
-            var character = validation.Character!;
+            Character? character = validation.Item2!;
 
-            var instanceMonstre = _context.InstanceMonstre.FirstOrDefault(m => m.monstreID == monstreId);
+            InstanceMonstre? instanceMonstre = _context.InstanceMonstre.FirstOrDefault(m => m.monstreID == monstreId);
             if (instanceMonstre == null) return NotFound("Instance de monstre non trouvée");
 
-            var monstre = _context.Monsters.FirstOrDefault(m => m.idMonster == instanceMonstre.monstreID);
+            Monster? monstre = _context.Monsters.FirstOrDefault(m => m.idMonster == instanceMonstre.monstreID);
             if (monstre == null) return NotFound("Monstre non trouvé");
 
             // Simulation du combat (sans appliquer les changements)
-            var (degatsMonstre, degatsJoueur) = CalculerDegats(character, monstre, instanceMonstre);
+            (int, int) degats = CalculerDegats(character, monstre, instanceMonstre);
+            int degatsJoueur = degats.Item1, degatsMonstre = degats.Item2;
 
             // Simulation des PV après combat
             int pvJoueurApres = character.pv - degatsJoueur;
             int pvMonstreApres = instanceMonstre.pointsVieActuels - degatsMonstre;
 
-            var characterSimule = CreateCharacterStateDto(character);
+            CharacterStateDto? characterSimule = CreateCharacterStateDto(character);
 
             MonstreStateDto? monstreSimule = new MonstreStateDto
             {
@@ -269,10 +273,10 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         [HttpGet("Ville/{email}")]
         public ActionResult<VilleDto> GetVille(string email)
         {
-            var validation = ValidateUserAndCharacter(email);
-            if (!validation.IsValid) return NotFound("Utilisateur non connecté ou personnage non trouvé");
+            (bool, Character?) validation = ValidateUserAndCharacter(email);
+            if (!validation.Item1) return NotFound("Utilisateur non connecté ou personnage non trouvé");
 
-            var character = validation.Character!;
+            Character? character = validation.Item2!;
             return Ok(new VilleDto
             {
                 VilleX = character.villeX,
@@ -285,10 +289,10 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         {
             if (ville == null) return BadRequest("Données ville requises");
 
-            var validation = ValidateUserAndCharacter(email);
-            if (!validation.IsValid) return NotFound("Utilisateur non connecté ou personnage non trouvé");
+            (bool, Character?) validation = ValidateUserAndCharacter(email);
+            if (!validation.Item1) return NotFound("Utilisateur non connecté ou personnage non trouvé");
 
-            var character = validation.Character!;
+            Character? character = validation.Item2!;
 
             // Mettre à jour les coordonnées de la ville
             character.villeX = ville.VilleX;
@@ -305,11 +309,6 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                     VilleY = character.villeY
                 }
             });
-        }
-
-        private bool CharacterExists(int id)
-        {
-            return _context.Character.Any(e => e.idPersonnage == id);
         }
     }
 }

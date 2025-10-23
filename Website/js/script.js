@@ -121,8 +121,8 @@ function CreerGrille() {
     grille.innerHTML = "";
     for (let row = 0; row < taillePortVue; row++) {
         for (let col = 0; col < taillePortVue; col++) {
-            var tileBtn = document.createElement("button"), tileImg = document.createElement("img");
-            var tileMonstreSprite, monstreSprite = document.createElement("img");
+            let tileBtn = document.createElement("button"), tileImg = document.createElement("img");
+            let tileMonstreSprite, monstreSprite = document.createElement("img");
             tileBtn.classList.add("tuile-boutton");
             tileBtn.style.border = "none";
             tileBtn.style.background = "transparent";
@@ -143,6 +143,21 @@ function CreerGrille() {
                     reponse = await fetch(`${url}/Tuiles/${mondeX}/${mondeY}`);
                     data = await reponse.json();
                     tileImg.src = data.imageURL || "images/rien.png";
+                    if (data.monstres) {
+                        tileMonstreSprite = tileBtn.querySelector(".monstre-sprite");
+                        if (!tileMonstreSprite) {
+                            tileMonstreSprite = document.createElement("img");
+                            tileMonstreSprite.classList.add("monstre-sprite");
+                            tileBtn.appendChild(tileMonstreSprite);
+                        }
+                        tileMonstreSprite.src = data.monstres.spriteUrl;
+                        tileMonstreSprite.style.display = "block";
+                    } else {
+                        tileMonstreSprite = tileBtn.querySelector(".monstre-sprite");
+                        if (tileMonstreSprite) {
+                            tileMonstreSprite.remove();
+                        }
+                    }
 
                     if(exists){
                         tilesModal = new bootstrap.Modal(document.getElementById('pokeModal'));
@@ -179,21 +194,6 @@ function CreerGrille() {
                             y: mondeY,
                             data: data
                         });
-                        if (data.monstres) {
-                            tileMonstreSprite = tileBtn.querySelector(".monstre-sprite");
-                            if (!tileMonstreSprite) {
-                                tileMonstreSprite = document.createElement("img");
-                                tileMonstreSprite.classList.add("monstre-sprite");
-                                tileBtn.appendChild(tileMonstreSprite);
-                            }
-                            tileMonstreSprite.src = data.monstres.spriteUrl;
-                            tileMonstreSprite.style.display = "block";
-                        } else {
-                            tileMonstreSprite = tileBtn.querySelector(".monstre-sprite");
-                            if (tileMonstreSprite) {
-                                tileMonstreSprite.remove();
-                            }
-                        }
                     }
                 } catch (err) {
                     console.error(`Erreur tuile (${mondeX},${mondeY})`, err);
@@ -256,7 +256,7 @@ async function MettreVuePortAJour() {
                             indexMonstreSprite.style.display = "block";
                         } else {
                             if (indexMonstreSprite) {
-                                monstreSprite.remove();
+                                indexMonstreSprite.remove();
                             }
                         }
                     }
@@ -280,9 +280,16 @@ async function MettreVuePortAJour() {
                     }
                 } catch (err) {
                     indexImg.src = "images/rien.png";
+                    if(indexMonstreSprite !== null && indexMonstreSprite !== undefined){
+                        indexMonstreSprite.remove();
+                    }
                 }
             } else {
                 indexImg.src = "images/rien.png";
+                var monstreASupprimer = indexBtn.querySelector(".monstre-sprite");
+                if (monstreASupprimer) {
+                    monstreASupprimer.remove();
+                }
             }
         }
     }
@@ -576,6 +583,11 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("btn-right")?.addEventListener("click", () => BougerJoueur(1, 0));
 
     document.addEventListener("keydown", (e) => {
+
+        if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+            e.preventDefault();
+        }
+
         if (e.key === "ArrowUp") BougerJoueur(0, -1);
         if (e.key === "ArrowDown") BougerJoueur(0, 1);
         if (e.key === "ArrowLeft") BougerJoueur(-1, 0);
