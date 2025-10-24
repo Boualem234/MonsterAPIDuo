@@ -14,6 +14,12 @@ namespace MyLittleRPG_ElGuendouz.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
+        const int POSITION_DEPART_X = 10;
+        const int POSITION_DEPART_Y = 10;
+        const int PV_MAX = 100;
+        const int STATS_MIN = 1;
+        const int STATS_MAX = 101;
+
         private readonly MonsterContext _context;
 
         public UsersController(MonsterContext context)
@@ -65,12 +71,12 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 nom = user.pseudo,
                 niveau = 1,
                 exp = 0,
-                pv = new Random().Next(1, 101),
-                pvMax = 100,
-                force = new Random().Next(1, 101),
-                def = new Random().Next(1, 101),
-                posX = 10,
-                posY = 10,
+                pv = new Random().Next(STATS_MIN, STATS_MAX),
+                pvMax = PV_MAX,
+                force = new Random().Next(STATS_MIN, STATS_MAX),
+                def = new Random().Next(STATS_MIN, STATS_MAX),
+                posX = POSITION_DEPART_X,
+                posY = POSITION_DEPART_Y,
                 utilisateurId = user.utilisateurId,
                 dateCreation = DateTime.Now
             };

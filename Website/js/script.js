@@ -1,4 +1,4 @@
-var villeActuelleX, villeActuelleY, tuilesChargees = [], estConnecte = false, reponse, data, texteErreur = "";
+var villeActuelleX = 10, villeActuelleY = 10, tuilesChargees = [], estConnecte = false, reponse, data, texteErreur = "";
 var email, villeBody = {}, simulateur, pageActuelle, monstreId, docBody, grille, positionJoueurGlobal = { x: 10, y: 10 };
 var simulateurModal, bodyModal, tilesModal, formulaireInscription, formulaireConnexion, nomUtilisateur, mdp, lienSombre = null, lienClair = null;
 const notif = document.getElementById("notif"), taillePortVue = 5, moitie = Math.floor(taillePortVue / 2), zoneJoueur = 1, url = "https://localhost:7039/api";
@@ -36,15 +36,15 @@ async function MettreEstConnecteAJour(){
     }
 }
 
-async function ObtenirVille(){
-    if(!email) return;
+async function ObtenirVille() {
+    if (!email) return;
     reponse = await fetch(`${url}/Characters/Ville/${email}`, { method: "GET" });
     data = await reponse.json();
-    if(data.villeX != 0 && data.villeY != 0){
+
+    if (data.villeX != 0 && data.villeY != 0) {
         villeActuelleX = data.villeX;
         villeActuelleY = data.villeY;
-    }
-    else{
+    } else {
         villeActuelleX = 10;
         villeActuelleY = 10;
     }
@@ -353,7 +353,7 @@ async function MettrePositionAJourDB(x, y) {
         if(data.combat){
             AfficherNotif(data.message);
             if(!(data.resultat) && data.message == "Défaite ! Vous êtes téléporté à la ville et vos HP sont restaurés."){
-                TeleporterReaparition();
+                await TeleporterReaparition();
             }
             else if(data.resultat){
                 tuilesChargees = tuilesChargees.filter(item => !(item.x == data.character.posX && item.y == data.character.posY));
@@ -368,12 +368,14 @@ async function MettrePositionAJourDB(x, y) {
     }
 }
 
-function TeleporterReaparition(){
+async function TeleporterReaparition(){
+    await ObtenirVille();
+
     positionJoueurGlobal.x = villeActuelleX;
     positionJoueurGlobal.y = villeActuelleY;
 
     MettreVuePortAJour();
-    MettrePositionAJourDB(villeActuelleX, villeActuelleY);
+    await MettrePositionAJourDB(villeActuelleX, villeActuelleY);
     ChargerInfoJoueur();
 }
 

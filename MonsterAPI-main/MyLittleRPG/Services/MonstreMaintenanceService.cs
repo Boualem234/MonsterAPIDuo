@@ -6,6 +6,9 @@ namespace MyLittleRPG_ElGuendouz.Services
 {
     public class MonstreMaintenanceService : BackgroundService
     {
+        private const int NBR_POKEMONS = 300;
+        private const int POSI_EXCLUE = 10;
+
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<MonstreMaintenanceService> _logger;
         private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(30);
@@ -49,9 +52,9 @@ namespace MyLittleRPG_ElGuendouz.Services
 
             int currentCount = await context.InstanceMonstre.CountAsync(cancellationToken);
 
-            if (currentCount < 300)
+            if (currentCount < NBR_POKEMONS)
             {
-                int toGenerate = 300 - currentCount;
+                int toGenerate = NBR_POKEMONS - currentCount;
                 _logger.LogWarning("Seulement {Current}/300 monstres. Génération automatique de {ToGenerate} monstres...", currentCount, toGenerate);
 
                 var baseMonsters = await GetRandomMonstersAsync(toGenerate, cancellationToken);
@@ -59,7 +62,7 @@ namespace MyLittleRPG_ElGuendouz.Services
                 var emptyTiles = await context.Tuiles
                            .Where(t => t.EstTraversable
                                        && t.Type != TypeTuile.VILLE
-                                       && !(t.PositionX == 10 && t.PositionY == 10) // Exclure la position (10, 10)
+                                       && !(t.PositionX == POSI_EXCLUE && t.PositionY == POSI_EXCLUE) // Exclure la position (10, 10)
                                        && !context.InstanceMonstre.Any(m => m.PositionX == t.PositionX && m.PositionY == t.PositionY))
                            .ToListAsync(cancellationToken);
 

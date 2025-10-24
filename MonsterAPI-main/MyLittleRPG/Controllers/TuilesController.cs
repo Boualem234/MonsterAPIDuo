@@ -16,6 +16,20 @@ namespace MyLittleRPG_ElGuendouz.Controllers
     [ApiController]
     public class TuilesController : ControllerBase
     {
+        private const int MAX_POS_X = 50;
+        private const int MAX_POS_Y = 50;
+        private const int RANDOM_MAX = 101;
+
+        const int BASE_FORET = 20;
+        const int BASE_ROUTE = 40;
+        const int BASE_EAU = 60;
+        const int BASE_MONTAGNE = 70;
+        const int BASE_HERBE = 85;
+
+        const int BONUS_FORET = 10;
+        const int BONUS_ROUTE = 10;
+        const int BONUS_EAU = 10;
+
         private readonly MonsterContext _context;
 
         public TuilesController(MonsterContext context)
@@ -27,6 +41,12 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         [HttpGet("{x}/{y}")]
         public async Task<ActionResult<TuileAvecMonstresDto>> GetTuile(int x, int y)
         {
+
+            if (x < 0 || x > MAX_POS_X || y < 0 || y > MAX_POS_Y)
+            {
+                return StatusCode(StatusCodes.Status416RangeNotSatisfiable, "Coordonnées hors limites (0 à 50).");
+            }
+
             Tuile tuile = await _context.Tuiles.FindAsync(x, y) ?? await CreateAndSaveTuileAsync(x, y);
             MonstreDto? monstre = await GetMonstreAsync(x, y);
 
@@ -83,7 +103,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             int roadCount = adjacents.Count(t => t.Type == TypeTuile.ROUTE);
             int waterCount = adjacents.Count(t => t.Type == TypeTuile.EAU);
 
-            int roll = random.Next(1, 101);
+            int roll = random.Next(1, RANDOM_MAX);
             (TypeTuile, bool) typeEstTraversable = DetermineTuileType(roll, forestCount, roadCount, waterCount);
             TypeTuile type = typeEstTraversable.Item1;
             bool estTraversable = typeEstTraversable.Item2;
@@ -107,11 +127,11 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         // Détermine le type de tuile basé sur les tuiles adjacentes
         private (TypeTuile type, bool estTraversable) DetermineTuileType(int roll, int forestCount, int roadCount, int waterCount)
         {
-            if (roll <= 20 + forestCount * 10) return (TypeTuile.FORET, true);
-            if (roll <= 40 + roadCount * 10) return (TypeTuile.ROUTE, true);
-            if (roll <= 60 + waterCount * 10) return (TypeTuile.EAU, false);
-            if (roll <= 70) return (TypeTuile.MONTAGNE, false);
-            if (roll <= 85) return (TypeTuile.HERBE, true);
+            if (roll <= BASE_FORET + forestCount * BONUS_FORET) return (TypeTuile.FORET, true);
+            if (roll <= BASE_ROUTE + roadCount * BONUS_ROUTE) return (TypeTuile.ROUTE, true);
+            if (roll <= BASE_EAU + waterCount * BONUS_EAU) return (TypeTuile.EAU, false);
+            if (roll <= BASE_MONTAGNE) return (TypeTuile.MONTAGNE, false);
+            if (roll <= BASE_HERBE) return (TypeTuile.HERBE, true);
             return (TypeTuile.VILLE, true);
         }
     }

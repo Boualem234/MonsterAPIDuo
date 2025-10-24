@@ -16,6 +16,8 @@ namespace MyLittleRPG_ElGuendouz.Models
     [PrimaryKey(nameof(PositionX), nameof(PositionY))]
     public class Tuile
     {
+        private const int MAX_POS_X = 50;
+        private const int MAX_POS_Y = 50;
         public int PositionX { get; set; }
         public int PositionY { get; set; }
         public TypeTuile Type { get; set; }
@@ -26,9 +28,9 @@ namespace MyLittleRPG_ElGuendouz.Models
 
         public Tuile(int positionX, int positionY, TypeTuile type, bool estTraversable, string imageURL)
         {
-            if (positionX < 0 || positionX > 50)
+            if (positionX < 0 || positionX > MAX_POS_X)
                 throw new ArgumentOutOfRangeException(nameof(positionX), "PositionX doit être compris entre 0 et 50.");
-            if (positionY < 0 || positionY > 50)
+            if (positionY < 0 || positionY > MAX_POS_Y)
                 throw new ArgumentOutOfRangeException(nameof(positionY), "PositionY doit être compris entre 0 et 50.");
 
             this.PositionX = positionX;

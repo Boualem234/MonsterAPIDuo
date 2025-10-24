@@ -15,6 +15,14 @@ namespace MyLittleRPG_ElGuendouz.Controllers
     [ApiController]
     public class CharactersController : ControllerBase
     {
+        const double FACTEUR_MIN = 0.8;
+        const double FACTEUR_MAX = 1.25;
+        const int DEGATS_MIN = 10;
+        const int DEGATS_MAX = 25;
+
+        const int EXP_PAR_NIVEAU = 100;
+        const int BONUS_PAR_NIVEAU_MONSTRE = 10;
+
         private readonly MonsterContext _context;
 
         public CharactersController(MonsterContext context)
@@ -52,7 +60,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         private (int degatsMonstre, int degatsJoueur) CalculerDegats(Character character, Monster monstre, InstanceMonstre instanceMonstre)
         {
             Random random = new Random();
-            double facteur = random.NextDouble() * (1.25 - 0.8) + 0.8;
+            double facteur = random.NextDouble() * (FACTEUR_MAX - FACTEUR_MIN) + FACTEUR_MIN;
 
             int forceMonstre = monstre.forceBase + instanceMonstre.niveau;
             int defenseMonstre = monstre.defenseBase + instanceMonstre.niveau;
@@ -60,8 +68,8 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             int degatsMonstre = (int)((character.force - defenseMonstre) * facteur);
             int degatsJoueur = (int)((forceMonstre - character.def) * facteur);
 
-            if (degatsMonstre <= 0) degatsMonstre = random.Next(10, 25);
-            if (degatsJoueur <= 0) degatsJoueur = random.Next(10, 25);
+            if (degatsMonstre <= 0) degatsMonstre = random.Next(DEGATS_MIN, DEGATS_MAX);
+            if (degatsJoueur <= 0) degatsJoueur = random.Next(DEGATS_MIN, DEGATS_MAX);
 
             return (degatsMonstre, degatsJoueur);
         }
@@ -77,105 +85,110 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         [HttpPut("Deplacement/{x}/{y}/{email}")]
         public async Task<ActionResult<CombatResultDto>> Deplacer(int x, int y, string email)
         {
-            (bool, Character?) validation = ValidateUserAndCharacter(email);
-            if (!validation.Item1) return NotFound("Utilisateur non connecté ou personnage non trouvé");
-
-            Character character = validation.Item2!;
-            InstanceMonstre? instanceMonstre = _context.InstanceMonstre.FirstOrDefault(m => m.PositionX == x && m.PositionY == y);
-
-            if (x != character.posX + 1 && x != character.posX - 1 && y != character.posY + 1 && y != character.posY - 1)
+            try
             {
-                return BadRequest("Mouvement invalide");
-            }
+                (bool, Character?) validation = ValidateUserAndCharacter(email);
+                if (!validation.Item1) return NotFound("Utilisateur non connecté ou personnage non trouvé");
 
-            // verif si il y a un monstre sur la tuile
+                Character character = validation.Item2!;
+                InstanceMonstre? instanceMonstre = _context.InstanceMonstre.FirstOrDefault(m => m.PositionX == x && m.PositionY == y);
 
-            if (instanceMonstre != null)
-            {
-                Monster? monstre = _context.Monsters.FirstOrDefault(m => m.idMonster == instanceMonstre.monstreID);
-                if (monstre == null) return NotFound("Monstre non trouvé");
-
-                // calcul des dégâts
-                (int, int) degats = CalculerDegats(character, monstre, instanceMonstre);
-                int degatsJoueur = degats.Item1, degatsMonstre = degats.Item2;
-                bool resultat = false;
-                string message;
-
-                // Appliquer les dégâts aux deux combattants
-                instanceMonstre.pointsVieActuels -= degatsMonstre;
-                character.pv -= degatsJoueur;
-
-                if (instanceMonstre.pointsVieActuels <= 0)
+                if (x != character.posX + 1 && x != character.posX - 1 && y != character.posY + 1 && y != character.posY - 1 && x != character.villeX && y != character.villeY)
                 {
-                    // victoire du joueur
-                    _context.InstanceMonstre.Remove(instanceMonstre);
-                    character.posX = x;
-                    character.posY = y;
-                    // gain d'expérience
-                    int xpGagnee = monstre.experienceBase + instanceMonstre.niveau * 10;
-                    character.exp += xpGagnee;
-                    // gestion du niveau
-                    int seuilNiveau = character.niveau * 100;
-                    if (character.exp >= seuilNiveau)
+                    return BadRequest("Mouvement invalide");
+                }
+
+                // verif si il y a un monstre sur la tuile
+
+                if (instanceMonstre != null)
+                {
+                    Monster? monstre = _context.Monsters.FirstOrDefault(m => m.idMonster == instanceMonstre.monstreID);
+                    if (monstre == null) return NotFound("Monstre non trouvé");
+
+                    // calcul des dégâts
+                    (int, int) degats = CalculerDegats(character, monstre, instanceMonstre);
+                    int degatsJoueur = degats.Item1, degatsMonstre = degats.Item2;
+                    bool resultat = false;
+                    string message;
+
+                    // Appliquer les dégâts aux deux combattants
+                    instanceMonstre.pointsVieActuels -= degatsMonstre;
+                    character.pv -= degatsJoueur;
+
+                    if (instanceMonstre.pointsVieActuels <= 0)
                     {
-                        character.niveau++;
-                        character.force++;
-                        character.def++;
-                        character.pvMax++;
+                        // victoire du joueur
+                        _context.InstanceMonstre.Remove(instanceMonstre);
+                        character.posX = x;
+                        character.posY = y;
+                        // gain d'expérience
+                        int xpGagnee = monstre.experienceBase + instanceMonstre.niveau * BONUS_PAR_NIVEAU_MONSTRE;
+                        character.exp += xpGagnee;
+                        // gestion du niveau
+                        int seuilNiveau = character.niveau * EXP_PAR_NIVEAU;
+                        if (character.exp >= seuilNiveau)
+                        {
+                            character.niveau++;
+                            character.force++;
+                            character.def++;
+                            character.pvMax++;
+                            character.pv = character.pvMax;
+                            message = $"Victoire ! Niveau augmenté. Expérience gagnée : {xpGagnee}";
+                        }
+                        else
+                        {
+                            message = $"Victoire ! Expérience gagnée : {xpGagnee}";
+                        }
+                        resultat = true;
+                    }
+                    else if (character.pv <= 0)
+                    {
+                        // defaite player
                         character.pv = character.pvMax;
-                        message = $"Victoire ! Niveau augmenté. Expérience gagnée : {xpGagnee}";
+                        message = "Défaite ! Vous êtes téléporté à la ville et vos HP sont restaurés.";
+                        resultat = false;
                     }
                     else
                     {
-                        message = $"Victoire ! Expérience gagnée : {xpGagnee}";
+                        // le joueur reste sur sa position d'origine
+                        message = $"Combat indécis: vous avez infligé {degatsMonstre} dégâts et reçu {degatsJoueur}.";
+                        resultat = false;
                     }
-                    resultat = true;
-                }
-                else if (character.pv <= 0)
-                {
-                    // defaite player
-                    character.posX = 0;
-                    character.posY = 0;
-                    character.pv = character.pvMax;
-                    message = "Défaite ! Vous êtes téléporté à la ville et vos HP sont restaurés.";
-                    resultat = false;
+
+                    await _context.SaveChangesAsync();
+                    return Ok(new CombatResultDto
+                    {
+                        Combat = true,
+                        Resultat = resultat,
+                        Message = message,
+                        Character = CreateCharacterStateDto(character),
+                        Monstre = instanceMonstre.pointsVieActuels > 0 ? new MonstreStateDto
+                        {
+                            Pv = instanceMonstre.pointsVieActuels,
+                            PosX = instanceMonstre.PositionX,
+                            PosY = instanceMonstre.PositionY,
+                            Nom = monstre.nom,
+                            Niveau = instanceMonstre.niveau,
+                            SpriteUrl = monstre.spriteUrl
+                        } : null
+                    });
                 }
                 else
                 {
-                    // le joueur reste sur sa position d'origine
-                    message = $"Combat indécis: vous avez infligé {degatsMonstre} dégâts et reçu {degatsJoueur}.";
-                    resultat = false;
-                }
-
-                await _context.SaveChangesAsync();
-                return Ok(new CombatResultDto
-                {
-                    Combat = true,
-                    Resultat = resultat,
-                    Message = message,
-                    Character = CreateCharacterStateDto(character),
-                    Monstre = instanceMonstre.pointsVieActuels > 0 ? new MonstreStateDto
+                    // deplacement sans combat
+                    character.posX = x;
+                    character.posY = y;
+                    await _context.SaveChangesAsync();
+                    return Ok(new CombatResultDto
                     {
-                        Pv = instanceMonstre.pointsVieActuels,
-                        PosX = instanceMonstre.PositionX,
-                        PosY = instanceMonstre.PositionY,
-                        Nom = monstre.nom,
-                        Niveau = instanceMonstre.niveau,
-                        SpriteUrl = monstre.spriteUrl
-                    } : null
-                });
+                        Combat = false,
+                        Character = CreateCharacterStateDto(character)
+                    });
+                }
             }
-            else
+            catch(Exception ex)
             {
-                // deplacement sans combat
-                character.posX = x;
-                character.posY = y;
-                await _context.SaveChangesAsync();
-                return Ok(new CombatResultDto
-                {
-                    Combat = false,
-                    Character = CreateCharacterStateDto(character)
-                });
+                return BadRequest(new { message = ex.Message });
             }
         }
 
@@ -223,10 +236,10 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                 characterSimule.PosX = instanceMonstre.PositionX;
                 characterSimule.PosY = instanceMonstre.PositionY;
 
-                int expGagnee = monstre.experienceBase + instanceMonstre.niveau * 10;
+                int expGagnee = monstre.experienceBase + instanceMonstre.niveau * BONUS_PAR_NIVEAU_MONSTRE;
                 characterSimule.Exp += expGagnee;
 
-                int seuilNiveau = character.niveau * 100;
+                int seuilNiveau = character.niveau * EXP_PAR_NIVEAU;
                 if (characterSimule.Exp >= seuilNiveau)
                 {
                     characterSimule.Niveau++;
