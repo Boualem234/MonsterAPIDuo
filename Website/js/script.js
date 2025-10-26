@@ -285,10 +285,33 @@ async function MettreVuePortAJour() {
                     }
                 }
             } else {
-                indexImg.src = "images/rien.png";
-                var monstreASupprimer = indexBtn.querySelector(".monstre-sprite");
-                if (monstreASupprimer) {
-                    monstreASupprimer.remove();
+                var tileExists = tuilesChargees.some(t => t.x == mondeX && t.y == mondeY);
+                if (tileExists) {
+                    // Garder l'affichage de la tuile chargée
+                    var tileData = tuilesChargees.find(t => t.x == mondeX && t.y == mondeY).data;
+                    indexImg.src = tileData.imageURL || "images/rien.png";
+
+                    indexMonstreSprite = indexBtn.querySelector(".monstre-sprite");
+                    if (tileData.monstres) {
+                        if (!indexMonstreSprite) {
+                            indexMonstreSprite = document.createElement("img");
+                            indexMonstreSprite.classList.add("monstre-sprite");
+                            indexBtn.appendChild(indexMonstreSprite);
+                        }
+                        indexMonstreSprite.src = tileData.monstres.spriteUrl;
+                        indexMonstreSprite.style.display = "block";
+                    } else {
+                        if (indexMonstreSprite) {
+                            indexMonstreSprite.remove();
+                        }
+                    }
+                } else {
+                    // Remettre l'image par défaut ssi pas chargée
+                    indexImg.src = "images/rien.png";
+                    var monstreASupprimer = indexBtn.querySelector(".monstre-sprite");
+                    if (monstreASupprimer) {
+                        monstreASupprimer.remove();
+                    }
                 }
             }
         }
