@@ -5,6 +5,8 @@ VisualStudioVersion = 17.11.35303.130
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyLittleRPG_ElGuendouz", "MyLittleRPG\MyLittleRPG_ElGuendouz.csproj", "{BA02638C-7137-4790-B453-91D6370114CA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestMonsterApiDuo", "TestMonsterApiDuo\TestMonsterApiDuo.csproj", "{15884BA2-EE0E-4101-BE07-802CAADF56D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{BA02638C-7137-4790-B453-91D6370114CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA02638C-7137-4790-B453-91D6370114CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA02638C-7137-4790-B453-91D6370114CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15884BA2-EE0E-4101-BE07-802CAADF56D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15884BA2-EE0E-4101-BE07-802CAADF56D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15884BA2-EE0E-4101-BE07-802CAADF56D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15884BA2-EE0E-4101-BE07-802CAADF56D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

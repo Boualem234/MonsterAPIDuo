@@ -49,6 +49,16 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         [HttpPost("Register/")]
         public async Task<ActionResult<User>> Register(User user)
         {
+            // Validation des champs requis
+            if (string.IsNullOrWhiteSpace(user.email))
+                return BadRequest("Email is required");
+            
+            if (string.IsNullOrWhiteSpace(user.mdp))
+                return BadRequest("Password is required");
+            
+            if (string.IsNullOrWhiteSpace(user.pseudo))
+                return BadRequest("Pseudo is required");
+
             if (_context.User.Any(u => u.email == user.email))
                 return BadRequest("This user already exists");
 
