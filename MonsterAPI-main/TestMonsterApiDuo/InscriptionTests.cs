@@ -27,8 +27,8 @@ namespace TestMonsterApiDuo
         public async Task Inscription_WithValidData_ReturnsCreated()
         {
             // Arrange : Préparer les données avec un email unique
-            var testEmail = $"test_{Guid.NewGuid()}@example.com";
-            var newUser = new User
+            string testEmail = $"test_{Guid.NewGuid()}@example.com";
+            User newUser = new User
             {
                 email = testEmail,
                 mdp = "password123",
@@ -38,13 +38,13 @@ namespace TestMonsterApiDuo
             };
 
             // Act : Exécuter l'inscription via l'API
-            var response = await _client.PostAsJsonAsync("/api/Users/Register/", newUser);
+            HttpResponseMessage? response = await _client.PostAsJsonAsync("/api/Users/Register/", newUser);
 
             // Assert : Vérifier le résultat
             Assert.True(response.IsSuccessStatusCode, 
                 $"Inscription échouée: {await response.Content.ReadAsStringAsync()}");
             
-            var returnedUser = await response.Content.ReadFromJsonAsync<User>();
+            User? returnedUser = await response.Content.ReadFromJsonAsync<User>();
             Assert.NotNull(returnedUser);
             Assert.Equal(testEmail, returnedUser.email);
             Assert.Equal("TestUser", returnedUser.pseudo);
@@ -55,8 +55,8 @@ namespace TestMonsterApiDuo
         public async Task Inscription_WithValidData_CreatesCharacterAutomatically()
         {
             // Arrange : Préparer les données avec un email unique
-            var testEmail = $"test_{Guid.NewGuid()}@example.com";
-            var newUser = new User
+            string testEmail = $"test_{Guid.NewGuid()}@example.com";
+            User newUser = new User
             {
                 email = testEmail,
                 mdp = "password123",
@@ -66,22 +66,22 @@ namespace TestMonsterApiDuo
             };
 
             // Act : Exécuter l'inscription via l'API
-            var response = await _client.PostAsJsonAsync("/api/Users/Register/", newUser);
+            HttpResponseMessage? response = await _client.PostAsJsonAsync("/api/Users/Register/", newUser);
 
             // Assert : Vérifier que l'inscription a réussi
             Assert.True(response.IsSuccessStatusCode);
             
-            var returnedUser = await response.Content.ReadFromJsonAsync<User>();
+            User? returnedUser = await response.Content.ReadFromJsonAsync<User>();
             Assert.NotNull(returnedUser);
 
             // Vérifier qu'un personnage a été créé en se connectant et en récupérant les infos
-            var loginResponse = await _client.GetAsync($"/api/Users/Login/{testEmail}/password123");
+            HttpResponseMessage? loginResponse = await _client.GetAsync($"/api/Users/Login/{testEmail}/password123");
             Assert.True(loginResponse.IsSuccessStatusCode);
 
-            var characterResponse = await _client.GetAsync($"/api/Characters/Load/{testEmail}");
+            HttpResponseMessage? characterResponse = await _client.GetAsync($"/api/Characters/Load/{testEmail}");
             Assert.True(characterResponse.IsSuccessStatusCode);
             
-            var character = await characterResponse.Content.ReadFromJsonAsync<Character>();
+            Character? character = await characterResponse.Content.ReadFromJsonAsync<Character>();
             Assert.NotNull(character);
             Assert.Equal("TestUser", character.nom);
             Assert.Equal(1, character.niveau);
@@ -96,8 +96,8 @@ namespace TestMonsterApiDuo
         public async Task Inscription_WithValidData_PlacesCharacterInRandomCity()
         {
             // Arrange : Préparer les données avec un email unique
-            var testEmail = $"test_{Guid.NewGuid()}@example.com";
-            var newUser = new User
+            string testEmail = $"test_{Guid.NewGuid()}@example.com";
+            User newUser = new User
             {
                 email = testEmail,
                 mdp = "password123",
@@ -107,7 +107,7 @@ namespace TestMonsterApiDuo
             };
 
             // Act : Exécuter l'inscription via l'API
-            var response = await _client.PostAsJsonAsync("/api/Users/Register/", newUser);
+            HttpResponseMessage? response = await _client.PostAsJsonAsync("/api/Users/Register/", newUser);
 
             // Assert : Vérifier que l'inscription a réussi
             Assert.True(response.IsSuccessStatusCode);
@@ -115,10 +115,10 @@ namespace TestMonsterApiDuo
             // Se connecter et récupérer les infos du personnage
             await _client.GetAsync($"/api/Users/Login/{testEmail}/password123");
             
-            var characterResponse = await _client.GetAsync($"/api/Characters/Load/{testEmail}");
+            HttpResponseMessage? characterResponse = await _client.GetAsync($"/api/Characters/Load/{testEmail}");
             Assert.True(characterResponse.IsSuccessStatusCode);
             
-            var character = await characterResponse.Content.ReadFromJsonAsync<Character>();
+            Character? character = await characterResponse.Content.ReadFromJsonAsync<Character>();
             Assert.NotNull(character);
             
             // Vérifier que le personnage est placé à la position de départ (10, 10)
@@ -133,9 +133,9 @@ namespace TestMonsterApiDuo
         [Fact]
         public async Task Inscription_WithExistingEmail_ReturnsConflict()
         {
-            // Arrange : Créer un premier utilisateur
-            var testEmail = $"existing_{Guid.NewGuid()}@example.com";
-            var existingUser = new User
+            // Arrange : Créer un premier utilisateur avec un email unique
+            string testEmail = $"existing_{Guid.NewGuid()}_{DateTime.Now.Ticks}@example.com";
+            User? existingUser = new User
             {
                 email = testEmail,
                 mdp = "password123",
@@ -145,11 +145,19 @@ namespace TestMonsterApiDuo
             };
 
             // Inscrire le premier utilisateur
-            var firstResponse = await _client.PostAsJsonAsync("/api/Users/Register/", existingUser);
+            HttpResponseMessage? firstResponse = await _client.PostAsJsonAsync("/api/Users/Register/", existingUser);
+            
+            // Si l'inscription échoue, afficher le message d'erreur pour debug
+            if (!firstResponse.IsSuccessStatusCode)
+            {
+                string errorContent = await firstResponse.Content.ReadAsStringAsync();
+                Assert.True(firstResponse.IsSuccessStatusCode, $"La première inscription a échoué: {errorContent}");
+            }
+
             Assert.True(firstResponse.IsSuccessStatusCode);
 
             // Créer un deuxième utilisateur avec le même email
-            var duplicateUser = new User
+            User? duplicateUser = new User
             {
                 email = testEmail, // Même email
                 mdp = "password456",
@@ -159,13 +167,13 @@ namespace TestMonsterApiDuo
             };
 
             // Act : Essayer d'inscrire un utilisateur avec le même email
-            var response = await _client.PostAsJsonAsync("/api/Users/Register/", duplicateUser);
+            HttpResponseMessage? response = await _client.PostAsJsonAsync("/api/Users/Register/", duplicateUser);
 
             // Assert : Vérifier que l'inscription échoue avec BadRequest
             Assert.False(response.IsSuccessStatusCode);
             Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
             
-            var errorMessage = await response.Content.ReadAsStringAsync();
+            string errorMessage = await response.Content.ReadAsStringAsync();
             Assert.Contains("already exists", errorMessage, StringComparison.OrdinalIgnoreCase);
         }
 
@@ -173,7 +181,7 @@ namespace TestMonsterApiDuo
         public async Task Inscription_WithEmptyEmail_ReturnsBadRequest()
         {
             // Arrange : Préparer un utilisateur avec email vide
-            var newUser = new User
+            User newUser = new User
             {
                 email = "", // Email vide
                 mdp = "password123",
@@ -183,14 +191,14 @@ namespace TestMonsterApiDuo
             };
 
             // Act : Exécuter l'inscription via l'API
-            var response = await _client.PostAsJsonAsync("/api/Users/Register/", newUser);
+            HttpResponseMessage? response = await _client.PostAsJsonAsync("/api/Users/Register/", newUser);
 
             // Assert : Vérifier que l'inscription échoue ou accepte l'email vide
             // Note: Actuellement, il n'y a pas de validation côté serveur, donc ça passe
             // Pour un vrai test de validation, il faudrait ajouter des attributs [Required] sur le modèle
             if (response.IsSuccessStatusCode)
             {
-                var returnedUser = await response.Content.ReadFromJsonAsync<User>();
+                User? returnedUser = await response.Content.ReadFromJsonAsync<User>();
                 Assert.NotNull(returnedUser);
                 Assert.Equal("", returnedUser.email);
             }
@@ -204,8 +212,8 @@ namespace TestMonsterApiDuo
         public async Task Inscription_WithEmptyPassword_ReturnsBadRequest()
         {
             // Arrange : Préparer un utilisateur avec mot de passe vide
-            var testEmail = $"test_{Guid.NewGuid()}@example.com";
-            var newUser = new User
+            string testEmail = $"test_{Guid.NewGuid()}@example.com";
+            User newUser = new User
             {
                 email = testEmail,
                 mdp = "", // Mot de passe vide
@@ -215,14 +223,12 @@ namespace TestMonsterApiDuo
             };
 
             // Act : Exécuter l'inscription via l'API
-            var response = await _client.PostAsJsonAsync("/api/Users/Register/", newUser);
+            HttpResponseMessage? response = await _client.PostAsJsonAsync("/api/Users/Register/", newUser);
 
             // Assert : Vérifier que l'inscription échoue ou accepte le mot de passe vide
-            // Note: Actuellement, il n'y a pas de validation côté serveur, donc ça passe
-            // Pour un vrai test de validation, il faudrait ajouter des attributs [Required] sur le modèle
             if (response.IsSuccessStatusCode)
             {
-                var returnedUser = await response.Content.ReadFromJsonAsync<User>();
+                User? returnedUser = await response.Content.ReadFromJsonAsync<User>();
                 Assert.NotNull(returnedUser);
                 Assert.Equal("", returnedUser.mdp);
             }
@@ -236,8 +242,8 @@ namespace TestMonsterApiDuo
         public async Task Inscription_WithEmptyPseudo_ReturnsBadRequest()
         {
             // Arrange : Préparer un utilisateur avec pseudo vide
-            var testEmail = $"test_{Guid.NewGuid()}@example.com";
-            var newUser = new User
+            string testEmail = $"test_{Guid.NewGuid()}@example.com";
+            User newUser = new User
             {
                 email = testEmail,
                 mdp = "password123",
@@ -247,24 +253,22 @@ namespace TestMonsterApiDuo
             };
 
             // Act : Exécuter l'inscription via l'API
-            var response = await _client.PostAsJsonAsync("/api/Users/Register/", newUser);
+            HttpResponseMessage? response = await _client.PostAsJsonAsync("/api/Users/Register/", newUser);
 
             // Assert : Vérifier que l'inscription échoue ou accepte le pseudo vide
-            // Note: Actuellement, il n'y a pas de validation côté serveur, donc ça passe
-            // Pour un vrai test de validation, il faudrait ajouter des attributs [Required] sur le modèle
             if (response.IsSuccessStatusCode)
             {
-                var returnedUser = await response.Content.ReadFromJsonAsync<User>();
+                User? returnedUser = await response.Content.ReadFromJsonAsync<User>();
                 Assert.NotNull(returnedUser);
                 Assert.Equal("", returnedUser.pseudo);
 
                 // Vérifier que le personnage est créé avec un nom vide également
                 await _client.GetAsync($"/api/Users/Login/{testEmail}/password123");
-                var characterResponse = await _client.GetAsync($"/api/Characters/Load/{testEmail}");
+                HttpResponseMessage? characterResponse = await _client.GetAsync($"/api/Characters/Load/{testEmail}");
                 
                 if (characterResponse.IsSuccessStatusCode)
                 {
-                    var character = await characterResponse.Content.ReadFromJsonAsync<Character>();
+                    Character? character = await characterResponse.Content.ReadFromJsonAsync<Character>();
                     Assert.NotNull(character);
                     Assert.Equal("", character.nom);
                 }

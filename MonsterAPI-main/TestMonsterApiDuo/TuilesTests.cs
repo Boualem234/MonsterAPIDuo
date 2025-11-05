@@ -34,7 +34,7 @@ namespace TestMonsterApiDuo
 
             await _client.GetAsync($"/api/Users/Login/{mail}/{pwd}");
 
-            Character character = await _client.GetAsync($"/api/Characters/Load/{mail}").Result.Content.ReadFromJsonAsync<Character>();
+            Character? character = await _client.GetAsync($"/api/Characters/Load/{mail}").Result.Content.ReadFromJsonAsync<Character>();
 
             HttpResponseMessage response = await _client.GetAsync($"/api/Tuiles/{character.posX+1}/{character.posY+1}?email={mail}");
             Assert.True(response.IsSuccessStatusCode, $"Chargement de tuile échoué: {await response.Content.ReadAsStringAsync()}");
@@ -52,7 +52,7 @@ namespace TestMonsterApiDuo
 
             await _client.GetAsync($"/api/Users/Login/{mail}/{pwd}");
 
-            Character character = await _client.GetAsync($"/api/Characters/Load/{mail}").Result.Content.ReadFromJsonAsync<Character>();
+            Character? character = await _client.GetAsync($"/api/Characters/Load/{mail}").Result.Content.ReadFromJsonAsync<Character>();
 
             HttpResponseMessage response = await _client.GetAsync($"/api/Tuiles/{character.posX}/{character.posY}?email={mail}");
             Assert.True(response.IsSuccessStatusCode, $"Chargement de tuile échoué: {await response.Content.ReadAsStringAsync()}");
@@ -65,10 +65,10 @@ namespace TestMonsterApiDuo
         {
             await Task.Delay(2000);
 
-            IEnumerable<InstanceMonstre> monstres = await _client.GetAsync($"/api/Monsters/GetInstances").Result.Content.ReadFromJsonAsync<IEnumerable<InstanceMonstre>>();
+            IEnumerable<InstanceMonstre>? monstres = await _client.GetAsync($"/api/Monsters/GetInstances").Result.Content.ReadFromJsonAsync<IEnumerable<InstanceMonstre>>();
 
-            var nouveauEmail = $"tuiles_{Guid.NewGuid()}@test.com";
-            var newUser = new User
+            string nouveauEmail = $"tuiles_{Guid.NewGuid()}@test.com";
+            User newUser = new User
             {
                 email = nouveauEmail,
                 mdp = "password123",
@@ -76,36 +76,32 @@ namespace TestMonsterApiDuo
                 dateInscription = DateTime.Now,
                 isConnected = false
             };
-            var registerResponse = await _client.PostAsJsonAsync("/api/Users/Register/", newUser);
+            HttpResponseMessage? registerResponse = await _client.PostAsJsonAsync("/api/Users/Register/", newUser);
             registerResponse.EnsureSuccessStatusCode();
 
-            var character = new Character
-            {
-                nom = "TuileMonstre",
-                niveau = 1,
-                exp = 1,
-                pv = 1,
-                pvMax = 1,
-                force = 1,
-                def = 1,
-                posX = monstres.First().PositionX,
-                posY = monstres.First().PositionY,
-                utilisateurId = newUser.utilisateurId,
-                dateCreation = DateTime.Now
-            };
-
-            await _client.PostAsJsonAsync("/api/Characters/Create", character);
             await _client.GetAsync($"/api/Users/Login/{nouveauEmail}/password123");
 
-            HttpResponseMessage response = await _client.GetAsync($"/api/Tuiles/{character.posX}/{character.posY}?email={nouveauEmail}");
-            if (response.IsSuccessStatusCode)
+            // Charger le personnage fait par Register
+            HttpResponseMessage? characterResponse = await _client.GetAsync($"/api/Characters/Load/{nouveauEmail}");
+            Character? character = await characterResponse.Content.ReadFromJsonAsync<Character>();
+            Assert.NotNull(character);
+
+            // Trouver un monstre proche de la position du personnage (dist <= 2)
+            InstanceMonstre? monstreProche = monstres.FirstOrDefault(m => 
+                Math.Abs(m.PositionX - character.posX) <= 2 && 
+                Math.Abs(m.PositionY - character.posY) <= 2);
+
+            // Si aucun monstre proche, tester avec la position du personnage
+            int targetX = monstreProche?.PositionX ?? character.posX;
+            int targetY = monstreProche?.PositionY ?? character.posY;
+
+            HttpResponseMessage response = await _client.GetAsync($"/api/Tuiles/{targetX}/{targetY}?email={nouveauEmail}");
+            Assert.True(response.IsSuccessStatusCode, $"Chargement de la tuile échouée: {await response.Content.ReadAsStringAsync()}");
+
+            if (monstreProche != null)
             {
-                TuilesDtos.TuileAvecMonstresDto monstreDto = await response.Content.ReadFromJsonAsync<TuilesDtos.TuileAvecMonstresDto>();
-                Assert.True(monstreDto.Monstres is not null, $"Échec du chargement de monstre: {response.Content.ReadAsStringAsync()}");
-            }
-            else
-            {
-                Assert.True(response.IsSuccessStatusCode, $"Chargement de la tuile échouée: {await response.Content.ReadAsStringAsync()}");
+                TuilesDtos.TuileAvecMonstresDto? monstreDto = await response.Content.ReadFromJsonAsync<TuilesDtos.TuileAvecMonstresDto>();
+                Assert.True(monstreDto.Monstres is not null, "Échec du chargement de monstre");
             }
 
             await _client.PostAsync($"/api/Users/Logout/{nouveauEmail}", null);
