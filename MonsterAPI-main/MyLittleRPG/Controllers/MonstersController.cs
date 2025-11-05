@@ -21,6 +21,13 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             _context = context;
         }
 
+        [HttpGet("GetInstances")]
+        public ActionResult<IEnumerable<InstanceMonstre>> GetInstances()
+        {
+            return Ok(_context.InstanceMonstre);
+        }
+
+
         [HttpGet("IsConnected")]
         public ActionResult<bool> IsConnected()
         {

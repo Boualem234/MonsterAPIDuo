@@ -74,6 +74,21 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             return (degatsMonstre, degatsJoueur);
         }
 
+        [HttpPost("Create")]
+        public async Task<ActionResult<Character>> CreateCharacter([FromBody] Character character)
+        {
+            var user = await _context.User.FirstOrDefaultAsync(u => u.utilisateurId == character.utilisateurId);
+            if (user == null)
+            {
+                return NotFound("Utilisateur inexistant.");
+            }
+
+            _context.Character.Add(character);
+            await _context.SaveChangesAsync();
+
+            return Ok(character);
+        }
+
         [HttpGet("Load/{email}")]
         public ActionResult<Character> LoadCharacter(string email)
         {

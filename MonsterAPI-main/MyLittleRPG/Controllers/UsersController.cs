@@ -27,6 +27,12 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             _context = context;
         }
 
+        [HttpGet("GetUsers")]
+        public ActionResult<IEnumerable<User>> GetUsers()
+        {
+            return Ok(_context.User);
+        }
+
 
         // Il s'agit d'un endpoint pour la connexion d'un utilisateur.
         [HttpGet("Login/{email}/{password}")]
@@ -71,28 +77,31 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             _context.User.Add(user);
             await _context.SaveChangesAsync();
 
-            Character? lastCharacter = _context.Character
-                .OrderByDescending(c => c.idPersonnage)
-                .FirstOrDefault();
-
-            Character character = new Character()
+            if(!_context.Character.Any(c => c.utilisateurId == user.utilisateurId))
             {
-                idPersonnage = (lastCharacter?.idPersonnage ?? 0) + 1,
-                nom = user.pseudo,
-                niveau = 1,
-                exp = 0,
-                pv = new Random().Next(STATS_MIN, STATS_MAX),
-                pvMax = PV_MAX,
-                force = new Random().Next(STATS_MIN, STATS_MAX),
-                def = new Random().Next(STATS_MIN, STATS_MAX),
-                posX = POSITION_DEPART_X,
-                posY = POSITION_DEPART_Y,
-                utilisateurId = user.utilisateurId,
-                dateCreation = DateTime.Now
-            };
+                Character? lastCharacter = _context.Character
+                    .OrderByDescending(c => c.idPersonnage)
+                    .FirstOrDefault();
 
-            _context.Character.Add(character);
-            await _context.SaveChangesAsync();
+                Character character = new Character()
+                {
+                    idPersonnage = (lastCharacter?.idPersonnage ?? 0) + 1,
+                    nom = user.pseudo,
+                    niveau = 1,
+                    exp = 0,
+                    pv = new Random().Next(STATS_MIN, STATS_MAX),
+                    pvMax = PV_MAX,
+                    force = new Random().Next(STATS_MIN, STATS_MAX),
+                    def = new Random().Next(STATS_MIN, STATS_MAX),
+                    posX = POSITION_DEPART_X,
+                    posY = POSITION_DEPART_Y,
+                    utilisateurId = user.utilisateurId,
+                    dateCreation = DateTime.Now
+                };
+
+                _context.Character.Add(character);
+                await _context.SaveChangesAsync();
+            }
 
             return Ok(user);
         }

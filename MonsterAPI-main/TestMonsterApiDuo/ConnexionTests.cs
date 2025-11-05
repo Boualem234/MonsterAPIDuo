@@ -31,8 +31,8 @@ namespace TestMonsterApiDuo
         {
             await Task.Delay(2000);
 
-            string mail = "test@gmail.com";
-            string pwd = "test";
+            string mail = "a@a.a";
+            string pwd = "a";
 
             HttpResponseMessage response = await _client.GetAsync($"/api/Users/Login/{mail}/{pwd}");
 
@@ -46,8 +46,8 @@ namespace TestMonsterApiDuo
         {
             await Task.Delay(2000);
 
-            string mail = "test@gmail.com";
-            string pwd = "test";
+            string mail = "a@a.a";
+            string pwd = "a";
 
             HttpResponseMessage response = await _client.GetAsync($"/api/Users/Login/{mail}/{pwd}");
 
@@ -68,8 +68,8 @@ namespace TestMonsterApiDuo
         {
             await Task.Delay(2000);
 
-            string mail = "test@gmail.com";
-            string pwd = "test";
+            string mail = "a@a.a";
+            string pwd = "a";
 
             HttpResponseMessage response = await _client.GetAsync($"/api/Users/Login/{mail}/{pwd}");
 
@@ -106,7 +106,7 @@ namespace TestMonsterApiDuo
         {
             await Task.Delay(2000);
 
-            string mail = "test@gmail.com";
+            string mail = "a@a.a";
             string pwd = "passwordinvalide";
 
             HttpResponseMessage response = await _client.GetAsync($"/api/Users/Login/{mail}/{pwd}");
@@ -120,7 +120,7 @@ namespace TestMonsterApiDuo
             await Task.Delay(2000);
 
             string mail = "identifiantinvalide@gmail.com";
-            string pwd = "test";
+            string pwd = "a";
 
             HttpResponseMessage response = await _client.GetAsync($"/api/Users/Login/{mail}/{pwd}");
 

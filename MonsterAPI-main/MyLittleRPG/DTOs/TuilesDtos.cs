@@ -11,7 +11,7 @@ namespace MyLittleRPG_ElGuendouz.DTOs
             public TypeTuile Type { get; set; }
             public bool EstTraversable { get; set; }
             public string ImageURL { get; set; } = string.Empty;
-            public MonstreDto Monstres { get; set; } = new();
+            public MonstreDto? Monstres { get; set; }
         }
 
         public class MonstreDto
