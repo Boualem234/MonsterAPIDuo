@@ -19,6 +19,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
         private const int MAX_POS_X = 50;
         private const int MAX_POS_Y = 50;
         private const int RANDOM_MAX = 101;
+        private const int EXPLORATION_RANGE = 2;
 
         const int BASE_FORET = 20;
         const int BASE_ROUTE = 40;
@@ -39,14 +40,44 @@ namespace MyLittleRPG_ElGuendouz.Controllers
 
         // endpoint pour obtenir une tuile à des coordonnées spécifiques
         [HttpGet("{x}/{y}")]
-        public async Task<ActionResult<TuileAvecMonstresDto>> GetTuile(int x, int y)
+        public async Task<ActionResult<TuileAvecMonstresDto>> GetTuile(int x, int y, [FromQuery] string? email = null)
         {
-
+            // Vérifier les limites de la carte
             if (x < 0 || x > MAX_POS_X || y < 0 || y > MAX_POS_Y)
             {
                 return StatusCode(StatusCodes.Status416RangeNotSatisfiable, "Coordonnées hors limites (0 à 50).");
             }
 
+            // Si un email est fourni, valider l'authentification et la distance
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                // Vérifier que l'utilisateur existe et est connecté
+                User? user = await _context.User.FirstOrDefaultAsync(u => u.email == email);
+                if (user == null || !user.isConnected)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden, "Utilisateur non trouvé ou non connecté.");
+                }
+
+                // Charger le personnage de l'utilisateur
+                Character? character = await _context.Character.FirstOrDefaultAsync(c => c.utilisateurId == user.utilisateurId);
+                if (character == null)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden, "Personnage non trouvé.");
+                }
+
+                // Calculer la distance entre le personnage et la tuile cible (distance de Chebyshev)
+                int distanceX = Math.Abs(character.posX - x);
+                int distanceY = Math.Abs(character.posY - y);
+                int distance = Math.Max(distanceX, distanceY);
+
+                // Vérifier que la tuile est à portée d'exploration
+                if (distance > EXPLORATION_RANGE)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden, "Tuile trop éloignée pour être explorée.");
+                }
+            }
+
+            // Récupérer ou créer la tuile
             Tuile tuile = await _context.Tuiles.FindAsync(x, y) ?? await CreateAndSaveTuileAsync(x, y);
             MonstreDto? monstre = await GetMonstreAsync(x, y);
 

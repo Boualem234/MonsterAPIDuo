@@ -140,7 +140,7 @@ function CreerGrille() {
                 var mondeY = positionJoueurGlobal.y + row - moitie;
                 var exists = tuilesChargees.some(t => t.x == mondeX && t.y == mondeY);
                 try {
-                    reponse = await fetch(`${url}/Tuiles/${mondeX}/${mondeY}`);
+                    reponse = await fetch(`${url}/Tuiles/${mondeX}/${mondeY}?email=${email}`);
                     data = await reponse.json();
                     tileImg.src = data.imageURL || "images/rien.png";
                     if (data.monstres) {
@@ -238,7 +238,7 @@ async function MettreVuePortAJour() {
                 try {
                     indexMonstreSprite = indexBtn.querySelector(".monstre-sprite");
                     if(!exists){
-                        reponse = await fetch(`${url}/Tuiles/${mondeX}/${mondeY}`);
+                        reponse = await fetch(`${url}/Tuiles/${mondeX}/${mondeY}?email=${email}`);
                         data = await reponse.json();
                         tuilesChargees.push({
                             x: mondeX,
@@ -327,7 +327,7 @@ async function BougerJoueur(dx, dy) {
     }
 
     try{
-        await fetch(`${url}/Tuiles/${nouveauX}/${nouveauY}`, {
+        await fetch(`${url}/Tuiles/${nouveauX}/${nouveauY}?email=${email}`, {
             method: "GET"
         }).then(async res => {
             if(!res.ok) throw new Error("Erreur lors du chargement");
