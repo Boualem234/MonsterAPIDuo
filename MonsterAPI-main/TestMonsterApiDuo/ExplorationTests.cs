@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using MyLittleRPG_ElGuendouz;
 using MyLittleRPG_ElGuendouz.Models;
 using Xunit;
+using FluentAssertions;
 using static MyLittleRPG_ElGuendouz.DTOs.TuilesDtos;
 
 namespace TestMonsterApiDuo
@@ -58,11 +59,11 @@ namespace TestMonsterApiDuo
             HttpResponseMessage? response = await _client.GetAsync($"/api/Tuiles/{targetX}/{targetY}?email={email}");
 
             // Assert : Vérifier que les données de la tuile sont retournées
-            Assert.True(response.IsSuccessStatusCode);
+            response.IsSuccessStatusCode.Should().BeTrue();
             TuileAvecMonstresDto? tuileData = await response.Content.ReadFromJsonAsync<TuileAvecMonstresDto>();
-            Assert.NotNull(tuileData);
-            Assert.Equal(targetX, tuileData.PositionX);
-            Assert.Equal(targetY, tuileData.PositionY);
+            tuileData.Should().NotBeNull();
+            tuileData!.PositionX.Should().Be(targetX);
+            tuileData.PositionY.Should().Be(targetY);
         }
 
         [Fact]
@@ -77,9 +78,9 @@ namespace TestMonsterApiDuo
             HttpResponseMessage? response = await _client.GetAsync($"/api/Tuiles/{targetX}/{targetY}?email={email}");
 
             // Assert : Vérifier la structure de la response
-            Assert.True(response.IsSuccessStatusCode);
+            response.IsSuccessStatusCode.Should().BeTrue();
             TuileAvecMonstresDto? tuileData = await response.Content.ReadFromJsonAsync<TuileAvecMonstresDto>();
-            Assert.NotNull(tuileData);
+            tuileData.Should().NotBeNull();
             // Le monstre peut être null ou non null, les deux sont valides
         }
 
@@ -109,7 +110,7 @@ namespace TestMonsterApiDuo
                         // Assert : Si pas de monstre Monstres doit être null
                         if (tuileData?.Monstres == null)
                         {
-                            Assert.Null(tuileData.Monstres);
+                            tuileData.Monstres.Should().BeNull();
                             return; // Test réussi
                         }
                     }
@@ -117,7 +118,7 @@ namespace TestMonsterApiDuo
             }
 
             // Si toutes les tuiles ont des monstres le test passe quand même
-            Assert.True(true);
+            true.Should().BeTrue();
         }
 
         [Fact]
@@ -132,9 +133,9 @@ namespace TestMonsterApiDuo
             HttpResponseMessage? response = await _client.GetAsync($"/api/Tuiles/{targetX}/{targetY}?email={email}");
 
             // Assert : L'exploration doit réussir (distance = 2)
-            Assert.True(response.IsSuccessStatusCode);
+            response.IsSuccessStatusCode.Should().BeTrue();
             TuileAvecMonstresDto? tuileData = await response.Content.ReadFromJsonAsync<TuileAvecMonstresDto>();
-            Assert.NotNull(tuileData);
+            tuileData.Should().NotBeNull();
         }
 
         #endregion
@@ -153,7 +154,7 @@ namespace TestMonsterApiDuo
             HttpResponseMessage? response = await _client.GetAsync($"/api/Tuiles/{targetX}/{targetY}?email={email}");
 
             // Assert : Doit retourner Forbidden (distance > 2)
-            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         }
 
         [Fact]
@@ -168,7 +169,7 @@ namespace TestMonsterApiDuo
             HttpResponseMessage? response = await _client.GetAsync($"/api/Tuiles/{targetX}/{targetY}?email={email}");
 
             // Assert : Doit retourner erreur (416 ou 403)
-            Assert.False(response.IsSuccessStatusCode);
+            response.IsSuccessStatusCode.Should().BeFalse();
         }
 
         [Fact]
@@ -183,7 +184,7 @@ namespace TestMonsterApiDuo
             HttpResponseMessage? response = await _client.GetAsync($"/api/Tuiles/{targetX}/{targetY}?email={email}");
 
             // Assert : Doit retourner erreur (416 ou 403)
-            Assert.False(response.IsSuccessStatusCode);
+            response.IsSuccessStatusCode.Should().BeFalse();
         }
 
         [Fact]
@@ -196,9 +197,8 @@ namespace TestMonsterApiDuo
             HttpResponseMessage? response = await _client.GetAsync($"/api/Tuiles/10/10?email={email}");
 
             // Assert : Doit retourner Forbidden ou NotFound
-            Assert.False(response.IsSuccessStatusCode);
-            Assert.True(response.StatusCode == HttpStatusCode.Forbidden || 
-                       response.StatusCode == HttpStatusCode.NotFound);
+            response.IsSuccessStatusCode.Should().BeFalse();
+            response.StatusCode.Should().BeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.NotFound);
         }
 
         [Fact]
@@ -225,9 +225,8 @@ namespace TestMonsterApiDuo
             HttpResponseMessage? response = await _client.GetAsync($"/api/Tuiles/10/10?email={testEmail}");
 
             // Assert : Doit retourner Forbidden
-            Assert.False(response.IsSuccessStatusCode);
-            Assert.True(response.StatusCode == HttpStatusCode.Forbidden || 
-                       response.StatusCode == HttpStatusCode.Unauthorized);
+            response.IsSuccessStatusCode.Should().BeFalse();
+            response.StatusCode.Should().BeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.Unauthorized);
         }
 
         #endregion

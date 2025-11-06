@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using MyLittleRPG_ElGuendouz;
 using MyLittleRPG_ElGuendouz.Models;
 using Xunit;
+using FluentAssertions;
 
 namespace TestMonsterApiDuo
 {
     /// <summary>
     /// Tests d'intégration pour l'inscription des utilisateurs
-    /// Utilise WebApplicationFactory pour tester l'application complète
     /// </summary>
     public class InscriptionTests : IClassFixture<WebApplicationFactory<Program>>
     {
@@ -40,15 +40,15 @@ namespace TestMonsterApiDuo
             // Act : Exécuter l'inscription via l'API
             HttpResponseMessage? response = await _client.PostAsJsonAsync("/api/Users/Register/", newUser);
 
-            // Assert : Vérifier le résultat
-            Assert.True(response.IsSuccessStatusCode, 
+            // Assert : Vérifier le résultat avec FluentAssertions
+            response.IsSuccessStatusCode.Should().BeTrue(
                 $"Inscription échouée: {await response.Content.ReadAsStringAsync()}");
             
             User? returnedUser = await response.Content.ReadFromJsonAsync<User>();
-            Assert.NotNull(returnedUser);
-            Assert.Equal(testEmail, returnedUser.email);
-            Assert.Equal("TestUser", returnedUser.pseudo);
-            Assert.True(returnedUser.utilisateurId > 0);
+            returnedUser.Should().NotBeNull();
+            returnedUser!.email.Should().Be(testEmail);
+            returnedUser.pseudo.Should().Be("TestUser");
+            returnedUser.utilisateurId.Should().BeGreaterThan(0);
         }
 
         [Fact]
@@ -69,27 +69,27 @@ namespace TestMonsterApiDuo
             HttpResponseMessage? response = await _client.PostAsJsonAsync("/api/Users/Register/", newUser);
 
             // Assert : Vérifier que l'inscription a réussi
-            Assert.True(response.IsSuccessStatusCode);
+            response.IsSuccessStatusCode.Should().BeTrue();
             
             User? returnedUser = await response.Content.ReadFromJsonAsync<User>();
-            Assert.NotNull(returnedUser);
+            returnedUser.Should().NotBeNull();
 
             // Vérifier qu'un personnage a été créé en se connectant et en récupérant les infos
             HttpResponseMessage? loginResponse = await _client.GetAsync($"/api/Users/Login/{testEmail}/password123");
-            Assert.True(loginResponse.IsSuccessStatusCode);
+            loginResponse.IsSuccessStatusCode.Should().BeTrue();
 
             HttpResponseMessage? characterResponse = await _client.GetAsync($"/api/Characters/Load/{testEmail}");
-            Assert.True(characterResponse.IsSuccessStatusCode);
+            characterResponse.IsSuccessStatusCode.Should().BeTrue();
             
             Character? character = await characterResponse.Content.ReadFromJsonAsync<Character>();
-            Assert.NotNull(character);
-            Assert.Equal("TestUser", character.nom);
-            Assert.Equal(1, character.niveau);
-            Assert.Equal(0, character.exp);
-            Assert.Equal(100, character.pvMax);
-            Assert.InRange(character.pv, 1, 100);
-            Assert.InRange(character.force, 1, 100);
-            Assert.InRange(character.def, 1, 100);
+            character.Should().NotBeNull();
+            character!.nom.Should().Be("TestUser");
+            character.niveau.Should().Be(1);
+            character.exp.Should().Be(0);
+            character.pvMax.Should().Be(100);
+            character.pv.Should().BeInRange(1, 100);
+            character.force.Should().BeInRange(1, 100);
+            character.def.Should().BeInRange(1, 100);
         }
 
         [Fact]
@@ -110,20 +110,20 @@ namespace TestMonsterApiDuo
             HttpResponseMessage? response = await _client.PostAsJsonAsync("/api/Users/Register/", newUser);
 
             // Assert : Vérifier que l'inscription a réussi
-            Assert.True(response.IsSuccessStatusCode);
+            response.IsSuccessStatusCode.Should().BeTrue();
 
             // Se connecter et récupérer les infos du personnage
             await _client.GetAsync($"/api/Users/Login/{testEmail}/password123");
             
             HttpResponseMessage? characterResponse = await _client.GetAsync($"/api/Characters/Load/{testEmail}");
-            Assert.True(characterResponse.IsSuccessStatusCode);
+            characterResponse.IsSuccessStatusCode.Should().BeTrue();
             
             Character? character = await characterResponse.Content.ReadFromJsonAsync<Character>();
-            Assert.NotNull(character);
+            character.Should().NotBeNull();
             
             // Vérifier que le personnage est placé à la position de départ (10, 10)
-            Assert.Equal(10, character.posX);
-            Assert.Equal(10, character.posY);
+            character!.posX.Should().Be(10);
+            character.posY.Should().Be(10);
         }
 
         #endregion
@@ -133,8 +133,8 @@ namespace TestMonsterApiDuo
         [Fact]
         public async Task Inscription_WithExistingEmail_ReturnsConflict()
         {
-            // Arrange : Créer un premier utilisateur avec un email unique
-            string testEmail = $"existing_{Guid.NewGuid()}_{DateTime.Now.Ticks}@example.com";
+            // Arrange : Créer un premier utilisateur
+            string testEmail = $"existing_{Guid.NewGuid()}@example.com";
             User? existingUser = new User
             {
                 email = testEmail,
@@ -146,15 +146,8 @@ namespace TestMonsterApiDuo
 
             // Inscrire le premier utilisateur
             HttpResponseMessage? firstResponse = await _client.PostAsJsonAsync("/api/Users/Register/", existingUser);
-            
-            // Si l'inscription échoue, afficher le message d'erreur pour debug
-            if (!firstResponse.IsSuccessStatusCode)
-            {
-                string errorContent = await firstResponse.Content.ReadAsStringAsync();
-                Assert.True(firstResponse.IsSuccessStatusCode, $"La première inscription a échoué: {errorContent}");
-            }
-
-            Assert.True(firstResponse.IsSuccessStatusCode);
+            firstResponse.IsSuccessStatusCode.Should().BeTrue(
+                $"La première inscription a échoué: {await firstResponse.Content.ReadAsStringAsync()}");
 
             // Créer un deuxième utilisateur avec le même email
             User? duplicateUser = new User
@@ -170,11 +163,11 @@ namespace TestMonsterApiDuo
             HttpResponseMessage? response = await _client.PostAsJsonAsync("/api/Users/Register/", duplicateUser);
 
             // Assert : Vérifier que l'inscription échoue avec BadRequest
-            Assert.False(response.IsSuccessStatusCode);
-            Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
+            response.IsSuccessStatusCode.Should().BeFalse();
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
             
             string errorMessage = await response.Content.ReadAsStringAsync();
-            Assert.Contains("already exists", errorMessage, StringComparison.OrdinalIgnoreCase);
+            errorMessage.Should().ContainEquivalentOf("already exists");
         }
 
         [Fact]
@@ -199,12 +192,12 @@ namespace TestMonsterApiDuo
             if (response.IsSuccessStatusCode)
             {
                 User? returnedUser = await response.Content.ReadFromJsonAsync<User>();
-                Assert.NotNull(returnedUser);
-                Assert.Equal("", returnedUser.email);
+                returnedUser.Should().NotBeNull();
+                returnedUser!.email.Should().Be("");
             }
             else
             {
-                Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
+                response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
             }
         }
 
@@ -229,12 +222,12 @@ namespace TestMonsterApiDuo
             if (response.IsSuccessStatusCode)
             {
                 User? returnedUser = await response.Content.ReadFromJsonAsync<User>();
-                Assert.NotNull(returnedUser);
-                Assert.Equal("", returnedUser.mdp);
+                returnedUser.Should().NotBeNull();
+                returnedUser!.mdp.Should().Be("");
             }
             else
             {
-                Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
+                response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
             }
         }
 
@@ -259,8 +252,8 @@ namespace TestMonsterApiDuo
             if (response.IsSuccessStatusCode)
             {
                 User? returnedUser = await response.Content.ReadFromJsonAsync<User>();
-                Assert.NotNull(returnedUser);
-                Assert.Equal("", returnedUser.pseudo);
+                returnedUser.Should().NotBeNull();
+                returnedUser!.pseudo.Should().Be("");
 
                 // Vérifier que le personnage est créé avec un nom vide également
                 await _client.GetAsync($"/api/Users/Login/{testEmail}/password123");
@@ -269,13 +262,13 @@ namespace TestMonsterApiDuo
                 if (characterResponse.IsSuccessStatusCode)
                 {
                     Character? character = await characterResponse.Content.ReadFromJsonAsync<Character>();
-                    Assert.NotNull(character);
-                    Assert.Equal("", character.nom);
+                    character.Should().NotBeNull();
+                    character!.nom.Should().Be("");
                 }
             }
             else
             {
-                Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
+                response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
             }
         }
 
