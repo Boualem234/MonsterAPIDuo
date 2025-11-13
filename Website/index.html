@@ -16,7 +16,8 @@
                 </h1>
             </div>
         </div>
-        <div id="notif" class="fondPrincipal text-white p-3 position-fixed top-0 end-0 m-3 rounded"></div>
+        <div id="toastContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+        
         <div class="container d-flex justify-content-end mt-3">
             <button id="deconnexionBtn" class="btn btn-danger"><i class="fa-solid fa-right-from-bracket"></i> Déconnexion</button>
         </div>
@@ -25,19 +26,64 @@
         </div>
         <div class="container mt-3 mb-3">
             <div class="row">
-                <div class="col-2 rounded py-5 text-white">
-                    <div class="container fondPrincipal rounded mb-4 py-3">
-                        <p class="text-center fw-bold"><i class="fa-solid fa-circle-info"></i> Informations</p>
-                        <hr>
-                        <p class="mt-1 fondSecondaire rounded text-center">Taille : 50x50</p>
-                        <p class="mt-1 fondSecondaire rounded text-center">Zone d'affichage : 5x5 tuiles</p>
-                        <p id="status" class="mt-1 fondSecondaire rounded text-center">Status API : </p>
+                <div class="col-3 rounded py-3 text-white">
+                    <!-- Panneau avec onglets -->
+                    <div class="container fondPrincipal rounded py-3">
+                        <ul class="nav nav-tabs" id="infoPanelTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info-panel" type="button">
+                                    <i class="fa-solid fa-circle-info"></i> Info
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="character-tab" data-bs-toggle="tab" data-bs-target="#character-panel" type="button">
+                                    <i class="fa-solid fa-user-secret"></i> Perso
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="quests-tab" data-bs-toggle="tab" data-bs-target="#quests-panel" type="button">
+                                    <i class="fa-solid fa-scroll"></i> Quêtes
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="legend-tab" data-bs-toggle="tab" data-bs-target="#legend-panel" type="button">
+                                    <i class="fa-solid fa-book"></i> Légende
+                                </button>
+                            </li>
+                        </ul>
+                        <div class="tab-content mt-3" id="infoPanelContent">
+                            <!-- Onglet Infos plateau/API -->
+                            <div class="tab-pane fade show active" id="info-panel" role="tabpanel">
+                                <p class="mt-1 fondSecondaire rounded text-center p-2">Taille : 50x50</p>
+                                <p class="mt-1 fondSecondaire rounded text-center p-2">Zone : 5x5 tuiles</p>
+                                <p id="status" class="mt-1 fondSecondaire rounded text-center p-2">Status API : </p>
+                            </div>
+                            <!-- Onglet Perso -->
+                            <div class="tab-pane fade" id="character-panel" role="tabpanel">
+                                <div id="perso_info"></div>
+                            </div>
+                            <!-- Onglet Quêtes -->
+                            <div class="tab-pane fade" id="quests-panel" role="tabpanel">
+                                <div id="quests_info">
+                                    <p class="text-center text-muted">Chargement des quêtes...</p>
+                                </div>
+                            </div>
+                            <!-- Onglet Légende -->
+                            <div class="tab-pane fade" id="legend-panel" role="tabpanel">
+                                <p class="mt-1 fondSecondaire rounded p-2">🟩 | 🌱 Herbe</p>
+                                <p class="mt-1 fondSecondaire rounded p-2">🟦 | 🌊 Eau</p>
+                                <p class="mt-1 fondSecondaire rounded p-2">🟫 | ⛰️ Montagne</p>
+                                <p class="mt-1 fondSecondaire rounded p-2">🟧 | 🌳 Forêt</p>
+                                <p class="mt-1 fondSecondaire rounded p-2">⬜ | 🏘️ Ville</p>
+                                <p class="mt-1 fondSecondaire rounded p-2">⬛ | 🛣️ Route</p>
+                                <hr>
+                                <p class="mt-1 fondSecondaire rounded p-2">🟥 | 🚫 Non accessible</p>
+                            </div>
+                        </div>
                     </div>
-                    <div id="perso_info" class="container fondPrincipal rounded mb-4 py-3">
-                        <p class="text-center fw-bold"><i class="fa-solid fa-user-secret"></i> Infos du Personnage</p>
-                        <hr>
-                    </div>
-                    <div class="container fondPrincipal rounded mb-4 py-3">
+                    
+                    <!-- Déplacement -->
+                    <div class="container fondPrincipal rounded mt-3 py-3">
                         <p class="fw-bold mb-3 text-center"><i class="fa-solid fa-arrows-up-down-left-right"></i> Déplacement</p>
                         <hr>
                         <div class="d-flex justify-content-center mb-2">
@@ -49,20 +95,8 @@
                             <button id="btn-right" class="btn btn-primary"><i class="fa-solid fa-arrow-right"></i></button>
                         </div>
                     </div>
-                    <div class="container fondPrincipal rounded mb-4 py-3">
-                        <p class="text-center fw-bold"><i class="fa-solid fa-book"></i> Légende
-                        <hr>
-                        <p class="mt-1 fondSecondaire rounded">🟩 | 🌱 Herbe</p>
-                        <p class="mt-1 fondSecondaire rounded">🟦 | 🌊 Eau</p>
-                        <p class="mt-1 fondSecondaire rounded">🟫 | ⛰️ Montagne</p>
-                        <p class="mt-1 fondSecondaire rounded">🟧 | 🌳 Forêt</p>
-                        <p class="mt-1 fondSecondaire rounded">⬜ | 🏘️ Ville</p>
-                        <p class="mt-1 fondSecondaire rounded">⬛ | 🛣️ Route</p>
-                        <hr>
-                        <p class="mt-1 fondSecondaire rounded">🟥 | 🚫 Non accessible</p>
-                    </div>
                 </div>
-                <div class="col-10 mt-5 rounded fondPrincipal text-white py-2">
+                <div class="col-9 mt-3 rounded fondPrincipal text-white py-2">
                     <div class="container d-flex justify-content-between">
                         <h2 class="py-2"><i class="fa-solid fa-map-pin"></i> Carte du monde</h2>
                         <p class="col-2 py-2 text-center fw-bold rounded fondTernaire">Zone : 0,0 → 50,50</p>
