@@ -1,82 +1,35 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using MyLittleRPG_ElGuendouz.Data.Context;
+using MyLittleRPG_ElGuendouz.Models;
 
 namespace MyLittleRPG_ElGuendouz.Controllers
 {
     public class QuestController : Controller
     {
-        // GET: QuestController
-        public ActionResult Index()
+        private readonly MonsterContext _context;
+
+        public QuestController(MonsterContext context)
         {
-            return View();
+            _context = context;
         }
 
-        // GET: QuestController/Details/5
-        public ActionResult Details(int id)
+        [HttpGet]
+        public async Task<ActionResult<List<Quest>>> Get()
         {
-            return View();
+            return Ok(_context.Quest.ToList());
         }
 
-        // GET: QuestController/Create
-        public ActionResult Create()
+        [HttpGet("{id}")]
+        public async Task<ActionResult<List<Quest>>> GetByCharacterId(int id)
         {
-            return View();
-        }
+            if (!_context.Character.Any(c => c.idPersonnage == id)) return NotFound();
 
-        // POST: QuestController/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
-        {
-            try
+            else
             {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: QuestController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: QuestController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: QuestController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: QuestController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
+                return Ok(_context.Quest.Where(q => q.idPersonnage == id).ToList());
             }
         }
     }

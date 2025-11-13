@@ -9,11 +9,12 @@ namespace MyLittleRPG_ElGuendouz.Services
 {
     public class QuestService : BackgroundService
     {
-        private const int NBR_QUETES = 3, NB_MINUTES = 10;
+        private const int NBR_QUETES = 3;
+        private const int NB_MINUTES = 10;
 
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<QuestService> _logger;
-        private Random rand;
+        private readonly Random rand;
 
         public QuestService(IServiceScopeFactory scopeFactory, ILogger<QuestService> logger)
         {
@@ -24,95 +25,112 @@ namespace MyLittleRPG_ElGuendouz.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await CheckAndGenerateQuestsAsync(stoppingToken);
+
             while (!stoppingToken.IsCancellationRequested)
             {
-                try
+                await Task.Delay(TimeSpan.FromMinutes(NB_MINUTES), stoppingToken);
+                await CheckAndGenerateQuestsAsync(stoppingToken);
+            }
+        }
+
+        private async Task CheckAndGenerateQuestsAsync(CancellationToken stoppingToken)
+        {
+            try
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var context = scope.ServiceProvider.GetRequiredService<MonsterContext>();
+
+                var characters = await context.Character.ToListAsync(stoppingToken);
+
+                foreach (var character in characters)
                 {
-                    using (var scope = _scopeFactory.CreateScope())
+                    int questCount = await context.Quest
+                        .CountAsync(q => q.idPersonnage == character.idPersonnage, stoppingToken);
+
+                    if (questCount < NBR_QUETES)
                     {
-                        var context = scope.ServiceProvider.GetRequiredService<MonsterContext>();
+                        int toAdd = NBR_QUETES - questCount;
+                        _logger.LogInformation($"🧩 Personnage {character.nom} : ajout de {toAdd} quête(s).");
 
-                        var characters = await context.Character.ToListAsync(stoppingToken);
+                        var monsters = await context.Monsters.ToListAsync(stoppingToken);
 
-                        foreach (var character in characters)
+                        for (int i = 0; i < toAdd; i++)
                         {
-                            int questCount = await context.Quest
-                                .CountAsync(q => q.idPersonnage == character.idPersonnage, stoppingToken);
+                            Quest newQuest;
+                            int result = rand.Next(1, 4);
 
-                            if (questCount < NBR_QUETES)
+                            switch (result)
                             {
-                                int toAdd = NBR_QUETES - questCount;
-                                for (int i = 0; i < toAdd; i++)
-                                {
-                                    Quest newQuest;
-                                    int result = rand.Next(1, 4);
-
-                                    switch (result)
+                                case 1:
                                     {
-                                        case 1:
-                                            {
-                                                newQuest = new Quest
-                                                {
-                                                    Type = "monstres",
-                                                    NvRequis = null,
-                                                    NbMonstresATuer = rand.Next(1, 6),
-                                                    NbMonstresTues = 0,
-                                                    TypeMonstre = context.Monsters.ToArray()[rand.Next(context.Monsters.Count())].type1,
-                                                    TuileASeRendreX = null,
-                                                    TuileASeRendreY = null,
-                                                    Termine = false,
-                                                    idPersonnage = character.idPersonnage
-                                                };
-                                                context.Quest.Add(newQuest);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                newQuest = new Quest
-                                                {
-                                                    Type = "tuile",
-                                                    NvRequis = null,
-                                                    NbMonstresATuer = null,
-                                                    NbMonstresTues = null,
-                                                    TypeMonstre = null,
-                                                    TuileASeRendreX = rand.Next(1, 51),
-                                                    TuileASeRendreY = rand.Next(1, 51),
-                                                    Termine = false,
-                                                    idPersonnage = character.idPersonnage
-                                                };
-                                                context.Quest.Add(newQuest);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                newQuest = new Quest
-                                                {
-                                                    Type = "niveau",
-                                                    NvRequis = character.niveau + rand.Next(1, 6),
-                                                    NbMonstresATuer = null,
-                                                    NbMonstresTues = null,
-                                                    TypeMonstre = null,
-                                                    TuileASeRendreX = null,
-                                                    TuileASeRendreY = null,
-                                                    Termine = false,
-                                                    idPersonnage = character.idPersonnage
-                                                };
-                                                context.Quest.Add(newQuest);
-                                                break;
-                                            }
-                                    }
-                                }
+                                        var randomMonster = monsters.Count > 0
+                                            ? monsters[rand.Next(monsters.Count)]
+                                            : null;
 
-                                await context.SaveChangesAsync(stoppingToken);
+                                        newQuest = new Quest
+                                        {
+                                            Type = "monstres",
+                                            NvRequis = null,
+                                            NbMonstresATuer = rand.Next(1, 6),
+                                            NbMonstresTues = 0,
+                                            TypeMonstre = randomMonster?.type1 ?? "Inconnu",
+                                            TuileASeRendreX = null,
+                                            TuileASeRendreY = null,
+                                            Termine = false,
+                                            idPersonnage = character.idPersonnage
+                                        };
+                                        break;
+                                    }
+
+                                case 2:
+                                    {
+                                        newQuest = new Quest
+                                        {
+                                            Type = "tuile",
+                                            NvRequis = null,
+                                            NbMonstresATuer = null,
+                                            NbMonstresTues = null,
+                                            TypeMonstre = null,
+                                            TuileASeRendreX = rand.Next(1, 51),
+                                            TuileASeRendreY = rand.Next(1, 51),
+                                            Termine = false,
+                                            idPersonnage = character.idPersonnage
+                                        };
+                                        break;
+                                    }
+
+                                case 3:
+                                    {
+                                        newQuest = new Quest
+                                        {
+                                            Type = "niveau",
+                                            NvRequis = character.niveau + rand.Next(1, 6),
+                                            NbMonstresATuer = null,
+                                            NbMonstresTues = null,
+                                            TypeMonstre = null,
+                                            TuileASeRendreX = null,
+                                            TuileASeRendreY = null,
+                                            Termine = false,
+                                            idPersonnage = character.idPersonnage
+                                        };
+                                        break;
+                                    }
+
+                                default:
+                                    continue;
                             }
+
+                            context.Quest.Add(newQuest);
                         }
+
+                        await context.SaveChangesAsync(stoppingToken);
                     }
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Erreur pendant la vérification des quêtes.");
-                }
-                await Task.Delay(TimeSpan.FromMinutes(NB_MINUTES), stoppingToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Erreur pendant la vérification des quêtes : {ex.Message}\n{ex.StackTrace}");
             }
         }
     }
