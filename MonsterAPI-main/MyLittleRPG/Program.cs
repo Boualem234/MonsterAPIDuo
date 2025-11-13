@@ -51,6 +51,7 @@ namespace MyLittleRPG_ElGuendouz
             });
 
             builder.Services.AddHostedService<MonstreMaintenanceService>();
+            builder.Services.AddHostedService<QuestService>();
 
             var app = builder.Build();
 
