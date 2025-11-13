@@ -4,18 +4,46 @@ var simulateurModal, bodyModal, tilesModal, formulaireInscription, formulaireCon
 const notif = document.getElementById("notif"), taillePortVue = 5, moitie = Math.floor(taillePortVue / 2), zoneJoueur = 1, url = "https://localhost:7039/api";
 const minX = 0, minY = 0, maxX = 50, maxY = 50;
 
-function AfficherNotif(message, type = "info"){
-    notif.textContent = message;
+function ShowToast(title, message, type = "info", duration = 3000) {
+    const toastContainer = document.getElementById("toastContainer");
+    if (!toastContainer) return;
 
-    notif.style.background = 
-        type === "success" ? "green" :
-        type === "error" ? "crimson" : "rgba(0,0,0,0.8)";
-
-    notif.style.display = "block";
-
+    const toast = document.createElement("div");
+    toast.className = `toast-notification ${type}`;
+    
+    const icons = {
+        success: "fa-check-circle",
+        error: "fa-exclamation-circle",
+        warning: "fa-exclamation-triangle",
+        info: "fa-info-circle"
+    };
+    
+    toast.innerHTML = `
+        <i class="fa-solid ${icons[type]} toast-icon"></i>
+        <div class="toast-content">
+            <div class="toast-title">${title}</div>
+            <div class="toast-message">${message}</div>
+        </div>
+        <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
     setTimeout(() => {
-        notif.style.display = "none";
-    }, 3000);
+        toast.classList.add("fade-out");
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
+
+function AfficherNotif(message, type = "info"){
+    // Ancienne fonction qu'on a modifié pour qu'elle utilise le système de toast
+    const titles = {
+        success: "Succès",
+        error: "Erreur",
+        warning: "Attention",
+        info: "Information"
+    };
+    ShowToast(titles[type] || "Notification", message, type);
 }
 
 async function MettreEstConnecteAJour(){
@@ -322,7 +350,7 @@ async function BougerJoueur(dx, dy) {
     var nouveauX = positionJoueurGlobal.x + dx, nouveauY = positionJoueurGlobal.y + dy, tuile;
 
     if(nouveauX < minX || nouveauX > maxX || nouveauY < minY || nouveauY > maxY){
-        AfficherNotif("Vous ne pouvez pas sortir des limites du monde");
+        ShowToast("Déplacement", "Vous ne pouvez pas sortir des limites du monde", "warning");
         return;
     }
 
@@ -334,7 +362,7 @@ async function BougerJoueur(dx, dy) {
             else{
                 tuile = await res.json();
                 if(!tuile.estTraversable){
-                    AfficherNotif("Impossible de traverser cette tuile");
+                    ShowToast("Déplacement", "Impossible de traverser cette tuile", "warning");
                     return;
                 }
                 else{
@@ -342,6 +370,7 @@ async function BougerJoueur(dx, dy) {
                         villeActuelleX = nouveauX;
                         villeActuelleY = nouveauY;
                         PosterVille();
+                        ShowToast("Ville", "Vous êtes entré dans une ville!", "info");
                     }
                     positionJoueurGlobal.x = nouveauX;
                     positionJoueurGlobal.y = nouveauY;
@@ -349,6 +378,9 @@ async function BougerJoueur(dx, dy) {
                     MettreVuePortAJour();
                     await MettrePositionAJourDB(nouveauX, nouveauY);
                     await ChargerInfoJoueur();
+                    
+                    // on recharge les quêtes après un déplacement
+                    ChargerQuetes();
                 }
             }
         });
@@ -374,13 +406,19 @@ async function MettrePositionAJourDB(x, y) {
         });
         data = await reponse.json();
         if(data.combat){
-            AfficherNotif(data.message);
             if(!(data.resultat) && data.message == "Défaite ! Vous êtes téléporté à la ville et vos HP sont restaurés."){
+                ShowToast("Combat", data.message, "error", 4000);
                 await TeleporterReaparition();
             }
             else if(data.resultat){
+                ShowToast("Victoire!", data.message, "success", 4000);
                 tuilesChargees = tuilesChargees.filter(item => !(item.x == data.character.posX && item.y == data.character.posY));
                 MettreVuePortAJour();
+                // on recharge les quêtes après un combat
+                ChargerQuetes();
+            }
+            else {
+                ShowToast("Combat", data.message, "info", 3000);
             }
         }
         if (!reponse.ok) {
@@ -520,6 +558,74 @@ function ChargerBoutonDeconnexion(){
     }
 }
 
+async function ChargerQuetes() {
+    email = localStorage.getItem("utilisateurEmail");
+    const questsInfoDiv = document.getElementById("quests_info");
+
+    if (!email || !questsInfoDiv) return;
+
+    try {
+        const response = await fetch(`${url}/Quest/user/${email}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" }
+        });
+
+        if (response.ok) {
+            const quests = await response.json();
+            
+            if (!quests || quests.length === 0) {
+                questsInfoDiv.innerHTML = `
+                    <p class="text-center text-muted">
+                        <i class="fa-solid fa-scroll"></i><br>
+                        Aucune quête disponible
+                    </p>
+                `;
+                return;
+            }
+
+            let questsHtml = "";
+            quests.forEach(quest => {
+                const statusClass = quest.estCompletee ? "completed" : quest.estEchouee ? "failed" : "active";
+                const statusIcon = quest.estCompletee ? "✓" : quest.estEchouee ? "✗" : "⏳";
+                const progressText = quest.estCompletee ? "Terminée" : quest.estEchouee ? "Échouée" : 
+                    `${quest.progressionActuelle || 0}/${quest.objectifAAtteindre || 0}`;
+
+                questsHtml += `
+                    <div class="quest-item ${statusClass}">
+                        <div class="quest-title">${statusIcon} ${quest.nom}</div>
+                        <div class="quest-description">${quest.description}</div>
+                        <div class="quest-progress">Progression: ${progressText}</div>
+                        ${quest.recompenseExp ? `<div class="quest-reward">🎁 ${quest.recompenseExp} XP</div>` : ''}
+                    </div>
+                `;
+            });
+
+            questsInfoDiv.innerHTML = questsHtml;
+            
+            // si quête complétée
+            const completedQuests = quests.filter(q => q.estCompletee);
+            if (completedQuests.length > 0) {
+                ShowToast("Quêtes", `${completedQuests.length} quête(s) terminée(s)!`, "success");
+            }
+        } else {
+            questsInfoDiv.innerHTML = `
+                <p class="text-center text-warning">
+                    <i class="fa-solid fa-exclamation-triangle"></i><br>
+                    Erreur de chargement
+                </p>
+            `;
+        }
+    } catch (error) {
+        console.error("Erreur lors du chargement des quêtes:", error);
+        questsInfoDiv.innerHTML = `
+            <p class="text-center text-danger">
+                <i class="fa-solid fa-times-circle"></i><br>
+                Erreur de connexion
+            </p>
+        `;
+    }
+}
+
 async function ChargerInfoJoueur() {
     email = localStorage.getItem("utilisateurEmail"); 
     var persoInfoDiv = document.getElementById("perso_info"), character;
@@ -527,9 +633,7 @@ async function ChargerInfoJoueur() {
     if (!email) {
         console.warn("Aucun email trouvé dans le localStorage !");
         persoInfoDiv.innerHTML = `
-            <p class="text-center fw-bold"><i class="fa-solid fa-user-secret"></i> Infos du Personnage</p>
-            <hr>
-            <p><strong>Aucun utilisateur connecté</strong></p>
+            <p class="text-center text-muted">Aucun utilisateur connecté</p>
         `;
         return;
     }
@@ -548,16 +652,13 @@ async function ChargerInfoJoueur() {
 
             if (persoInfoDiv) {
                 persoInfoDiv.innerHTML = `
-                    <p class="text-center fw-bold"><i class="fa-solid fa-user-secret"></i> Infos du Personnage</p>
-                    <hr>
-                    <p><strong>Nom :</strong> ${character.nom}</p>
-                    <p><strong>Niveau :</strong> ${character.niveau}</p>
-                    <p><strong>Expérience :</strong> ${character.exp}</p>
-                    <p><strong>PV :</strong> ${character.pv} / ${character.pvMax}</p>
-                    <p><strong>Force :</strong> ${character.force}</p>
-                    <p><strong>Défense :</strong> ${character.def}</p>
-                    <p><strong>Position :</strong> (${character.posX}, ${character.posY})</p>
-                    <p><strong>Date de création :</strong> ${new Date(character.dateCreation).toLocaleString()}</p>
+                    <p class="fondSecondaire rounded p-2"><strong>Nom :</strong> ${character.nom}</p>
+                    <p class="fondSecondaire rounded p-2"><strong>Niveau :</strong> ${character.niveau}</p>
+                    <p class="fondSecondaire rounded p-2"><strong>Expérience :</strong> ${character.exp}</p>
+                    <p class="fondSecondaire rounded p-2"><strong>PV :</strong> ${character.pv} / ${character.pvMax}</p>
+                    <p class="fondSecondaire rounded p-2"><strong>Force :</strong> ${character.force}</p>
+                    <p class="fondSecondaire rounded p-2"><strong>Défense :</strong> ${character.def}</p>
+                    <p class="fondSecondaire rounded p-2"><strong>Position :</strong> (${character.posX}, ${character.posY})</p>
                 `;
             }
         } else {
@@ -606,6 +707,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("btn-down")?.addEventListener("click", () => BougerJoueur(0, 1));
     document.getElementById("btn-left")?.addEventListener("click", () => BougerJoueur(-1, 0));
     document.getElementById("btn-right")?.addEventListener("click", () => BougerJoueur(1, 0));
+    
+    ChargerQuetes();
 
     document.addEventListener("keydown", (e) => {
 

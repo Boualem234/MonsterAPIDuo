@@ -93,9 +93,171 @@ body.sombre .theme-toggle a:hover {
   transition: transform 0.2s ease;
 }
 
-.tuile-boutton:hover .grille-tuile {
+  .tuile-boutton:hover .grille-tuile {
   transform: scale(1.15);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
+
+/* Onglets perso */
+.nav-tabs .nav-link {
+  color: #ffffff;
+  background-color: rgba(135, 135, 197, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.9rem;
+  padding: 0.4rem 0.6rem;
+}
+
+.nav-tabs .nav-link.active {
+  color: #ffffff;
+  background-color: rgb(8, 8, 73);
+  border-color: rgba(255, 255, 255, 0.3);
+  font-weight: bold;
+}
+
+.nav-tabs .nav-link:hover {
+  background-color: rgba(135, 135, 197, 0.8);
+}
+
+/* Toasts de notification */
+.toast-notification {
+  min-width: 250px;
+  max-width: 350px;
+  background-color: rgba(147, 147, 236, 0.95);
+  border-left: 4px solid;
+  color: white;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease-out;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toast-notification.success {
+  border-left-color: #28a745;
+}
+
+.toast-notification.error {
+  border-left-color: #dc3545;
+}
+
+.toast-notification.warning {
+  border-left-color: #ffc107;
+}
+
+.toast-notification.info {
+  border-left-color: #17a2b8;
+}
+
+.toast-notification .toast-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.toast-notification .toast-content {
+  flex-grow: 1;
+}
+
+.toast-notification .toast-title {
+  font-weight: bold;
+  margin-bottom: 2px;
+  font-size: 0.95rem;
+}
+
+.toast-notification .toast-message {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.toast-notification .toast-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 10px;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.toast-notification .toast-close:hover {
+  opacity: 1;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast-notification.fade-out {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+/* quêtes */
+.quest-item {
+  background-color: rgba(135, 135, 197, 0.5);
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-left: 3px solid;
+}
+
+.quest-item.active {
+  border-left-color: #ffc107;
+}
+
+.quest-item.completed {
+  border-left-color: #28a745;
+  opacity: 0.7;
+}
+
+.quest-item.failed {
+  border-left-color: #dc3545;
+  opacity: 0.6;
+}
+
+.quest-title {
+  font-weight: bold;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.quest-description {
+  font-size: 0.8rem;
+  opacity: 0.9;
+  margin-bottom: 4px;
+}
+
+.quest-progress {
+  font-size: 0.75rem;
+  color: #ffc107;
+}
+
+.quest-reward {
+  font-size: 0.75rem;
+  color: #28a745;
+  margin-top: 4px;
+}
+
 
 
