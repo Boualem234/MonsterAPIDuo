@@ -13,13 +13,13 @@ namespace MyLittleRPG_ElGuendouz.Models
         public int? TuileASeRendreX {  get; set; }
         public int? TuileASeRendreY { get; set; }
         public bool Termine {  get; set; }
-        public int idPersonnage { get; set; }
+        public int? idPersonnage { get; set; }
 
         public Quest()
         {
         }
 
-        public Quest(int Id, string Type, int? NvRequis, int? NbMonstresATuer, int? NbMonstresTues, string? TypeMonstre, int? TuileASeRendreX, int? TuileASeRendreY, bool Termine, int idPersonnage)
+        public Quest(int Id, string Type, int? NvRequis, int? NbMonstresATuer, int? NbMonstresTues, string? TypeMonstre, int? TuileASeRendreX, int? TuileASeRendreY, bool Termine, int? idPersonnage)
         {
             this.Id = Id;
             this.Type = Type;

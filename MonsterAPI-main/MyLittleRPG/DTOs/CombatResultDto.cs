@@ -5,6 +5,9 @@ namespace MyLittleRPG_ElGuendouz.DTOs
         public bool Combat { get; set; }
         public bool Resultat { get; set; }
         public string Message { get; set; } = string.Empty;
+        public string MessageQuestTuile { get; set; } = string.Empty;
+        public string MessageQuestMonstres { get; set; } = string.Empty;
+        public string MessageQuestNiveau {  get; set; } = string.Empty;
         public CharacterStateDto Character { get; set; } = new CharacterStateDto();
         public MonstreStateDto? Monstre { get; set; }
     }

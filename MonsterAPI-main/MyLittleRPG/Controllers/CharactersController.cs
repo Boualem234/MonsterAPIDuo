@@ -124,7 +124,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                     (int, int) degats = CalculerDegats(character, monstre, instanceMonstre);
                     int degatsJoueur = degats.Item1, degatsMonstre = degats.Item2;
                     bool resultat = false;
-                    string message;
+                    string message, messageQuestNiveau = "", messageQuestMonstres = "", messageQuestTuiles = "";
 
                     // Appliquer les dégâts aux deux combattants
                     instanceMonstre.pointsVieActuels -= degatsMonstre;
@@ -133,9 +133,25 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                     if (instanceMonstre.pointsVieActuels <= 0)
                     {
                         // victoire du joueur
+                        Quest? quest_monstres = _context.Quest.First(q => q.idPersonnage == character.idPersonnage && q.Type == "monstres" && q.TypeMonstre == _context.Monsters.First(
+                            m => m.idMonster == instanceMonstre.monstreID).type1);
+                        quest_monstres.NbMonstresTues++;
+                        if(quest_monstres.NbMonstresATuer == quest_monstres.NbMonstresTues)
+                        {
+                            quest_monstres.Termine = true;
+                            quest_monstres.idPersonnage = null;
+                            messageQuestMonstres = $"Quête de monstres terminée: Tuer {quest_monstres.NbMonstresATuer} monstres de type {quest_monstres.TypeMonstre}";
+                        }
                         _context.InstanceMonstre.Remove(instanceMonstre);
                         character.posX = x;
                         character.posY = y;
+                        Quest? quest_tuile = _context.Quest.First(q => q.idPersonnage == character.idPersonnage && q.Type == "tuile");
+                        if(character.posX == quest_tuile.TuileASeRendreX && character.posY == quest_tuile.TuileASeRendreY)
+                        {
+                            quest_tuile.Termine = true;
+                            quest_tuile.idPersonnage = null;
+                            messageQuestTuiles = $"Quête de tuile terminée: Se rendre à la tuile X{quest_tuile.TuileASeRendreX} Y{quest_tuile.TuileASeRendreY}";
+                        }
                         // gain d'expérience
                         int xpGagnee = monstre.experienceBase + instanceMonstre.niveau * BONUS_PAR_NIVEAU_MONSTRE;
                         character.exp += xpGagnee;
@@ -149,6 +165,13 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                             character.pvMax++;
                             character.pv = character.pvMax;
                             message = $"Victoire ! Niveau augmenté. Expérience gagnée : {xpGagnee}";
+                            Quest? quest_niveau = _context.Quest.First(q => q.idPersonnage == character.idPersonnage && q.Type == "niveau" && q.NvRequis == character.niveau);
+                            if (quest_niveau is not null)
+                            {
+                                quest_niveau.Termine = true;
+                                quest_niveau.idPersonnage = null;
+                                messageQuestNiveau = $"Quête de niveau terminée: Se rendre au niveau {quest_niveau.NvRequis}";
+                            }
                         }
                         else
                         {
@@ -176,6 +199,9 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                         Combat = true,
                         Resultat = resultat,
                         Message = message,
+                        MessageQuestTuile = messageQuestTuiles,
+                        MessageQuestMonstres = messageQuestMonstres,
+                        MessageQuestNiveau = messageQuestNiveau,
                         Character = CreateCharacterStateDto(character),
                         Monstre = instanceMonstre.pointsVieActuels > 0 ? new MonstreStateDto
                         {

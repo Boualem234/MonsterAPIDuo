@@ -9,7 +9,7 @@ namespace MyLittleRPG_ElGuendouz.Services
 {
     public class QuestService : BackgroundService
     {
-        private const int NBR_QUETES = 3;
+        private const int NBR_QUETES = 3, NB_MINUTES = 10;
 
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<QuestService> _logger;
@@ -112,10 +112,8 @@ namespace MyLittleRPG_ElGuendouz.Services
                 {
                     _logger.LogError(ex, "Erreur pendant la vérification des quêtes.");
                 }
-                await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(NB_MINUTES), stoppingToken);
             }
-
-            _logger.LogInformation("QuestCheckerService arrêté.");
         }
     }
 }
