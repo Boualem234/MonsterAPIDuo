@@ -622,7 +622,7 @@ async function ChargerQuetes() {
                 let questType = "";
                 let progression = "";
                 
-                if (quest.type === "Monstre" || quest.nbMonstresATuer) {
+                if (quest.type === "monstres") {
                     questType = "Éliminer des monstres";
                     const tues = quest.nbMonstresTues || 0;
                     const objectif = quest.nbMonstresATuer || 0;
@@ -630,10 +630,10 @@ async function ChargerQuetes() {
                     if (quest.typeMonstre) {
                         questType += ` (${quest.typeMonstre})`;
                     }
-                } else if (quest.type === "Tuile" || (quest.tuileASeRendreX !== null && quest.tuileASeRendreY !== null)) {
+                } else if (quest.type === "tuile") {
                     questType = "Se rendre à une position";
                     progression = `Position: (${quest.tuileASeRendreX}, ${quest.tuileASeRendreY})`;
-                } else if (quest.type === "Niveau" || quest.nvRequis) {
+                } else if (quest.type === "niveau") {
                     questType = "Atteindre un niveau";
                     progression = `Niveau ${quest.nvRequis} requis`;
                 }

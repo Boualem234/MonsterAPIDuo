@@ -133,20 +133,23 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                     if (instanceMonstre.pointsVieActuels <= 0)
                     {
                         // victoire du joueur
-                        Quest? quest_monstres = _context.Quest.First(q => q.idPersonnage == character.idPersonnage && q.Type == "monstres" && q.TypeMonstre == _context.Monsters.First(
-                            m => m.idMonster == instanceMonstre.monstreID).type1);
-                        quest_monstres.NbMonstresTues++;
-                        if(quest_monstres.NbMonstresATuer == quest_monstres.NbMonstresTues)
+                        Monster? monstreType = _context.Monsters.FirstOrDefault(m => m.idMonster == instanceMonstre.monstreID);
+                        Quest? quest_monstres = _context.Quest.FirstOrDefault(q => q.idPersonnage == character.idPersonnage && q.Type == "monstres" && q.TypeMonstre == monstreType!.type1);
+                        if (quest_monstres != null)
                         {
-                            quest_monstres.Termine = true;
-                            quest_monstres.idPersonnage = null;
-                            messageQuestMonstres = $"Quête de monstres terminée: Tuer {quest_monstres.NbMonstresATuer} monstres de type {quest_monstres.TypeMonstre}";
+                            quest_monstres.NbMonstresTues++;
+                            if(quest_monstres.NbMonstresATuer == quest_monstres.NbMonstresTues)
+                            {
+                                quest_monstres.Termine = true;
+                                quest_monstres.idPersonnage = null;
+                                messageQuestMonstres = $"Quête de monstres terminée: Tuer {quest_monstres.NbMonstresATuer} monstres de type {quest_monstres.TypeMonstre}";
+                            }
                         }
                         _context.InstanceMonstre.Remove(instanceMonstre);
                         character.posX = x;
                         character.posY = y;
-                        Quest? quest_tuile = _context.Quest.First(q => q.idPersonnage == character.idPersonnage && q.Type == "tuile");
-                        if(character.posX == quest_tuile.TuileASeRendreX && character.posY == quest_tuile.TuileASeRendreY)
+                        Quest? quest_tuile = _context.Quest.FirstOrDefault(q => q.idPersonnage == character.idPersonnage && q.Type == "tuile");
+                        if(quest_tuile != null && character.posX == quest_tuile.TuileASeRendreX && character.posY == quest_tuile.TuileASeRendreY)
                         {
                             quest_tuile.Termine = true;
                             quest_tuile.idPersonnage = null;
@@ -165,8 +168,8 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                             character.pvMax++;
                             character.pv = character.pvMax;
                             message = $"Victoire ! Niveau augmenté. Expérience gagnée : {xpGagnee}";
-                            Quest? quest_niveau = _context.Quest.First(q => q.idPersonnage == character.idPersonnage && q.Type == "niveau" && q.NvRequis == character.niveau);
-                            if (quest_niveau is not null)
+                            Quest? quest_niveau = _context.Quest.FirstOrDefault(q => q.idPersonnage == character.idPersonnage && q.Type == "niveau" && q.NvRequis == character.niveau);
+                            if (quest_niveau != null)
                             {
                                 quest_niveau.Termine = true;
                                 quest_niveau.idPersonnage = null;
