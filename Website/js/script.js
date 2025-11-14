@@ -414,6 +414,18 @@ async function MettrePositionAJourDB(x, y) {
                 ShowToast("Victoire!", data.message, "success", 4000);
                 tuilesChargees = tuilesChargees.filter(item => !(item.x == data.character.posX && item.y == data.character.posY));
                 MettreVuePortAJour();
+                
+                // messages de quêtes
+                if (data.messageQuestTuile && data.messageQuestTuile.trim() !== "") {
+                    ShowToast("Quête de Tuile", data.messageQuestTuile, "success", 4000);
+                }
+                if (data.messageQuestMonstres && data.messageQuestMonstres.trim() !== "") {
+                    ShowToast("Quête de Monstres", data.messageQuestMonstres, "success", 4000);
+                }
+                if (data.messageQuestNiveau && data.messageQuestNiveau.trim() !== "") {
+                    ShowToast("Quête de Niveau", data.messageQuestNiveau, "success", 4000);
+                }
+                
                 // on recharge les quêtes après un combat
                 ChargerQuetes();
             }
@@ -565,7 +577,26 @@ async function ChargerQuetes() {
     if (!email || !questsInfoDiv) return;
 
     try {
-        const response = await fetch(`${url}/Quest/user/${email}`, {
+        // récup le personnage et son id
+        const characterResponse = await fetch(`${url}/Characters/Load/${email}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" }
+        });
+
+        if (!characterResponse.ok) {
+            questsInfoDiv.innerHTML = `
+                <p class="text-center text-warning">
+                    <i class="fa-solid fa-exclamation-triangle"></i><br>
+                    Personnage non trouvé
+                </p>
+            `;
+            return;
+        }
+
+        const character = await characterResponse.json();
+        const idPersonnage = character.idPersonnage;
+
+        const response = await fetch(`${url}/Quest/Get/${idPersonnage}`, {
             method: "GET",
             headers: { "Content-Type": "application/json" }
         });
@@ -585,17 +616,34 @@ async function ChargerQuetes() {
 
             let questsHtml = "";
             quests.forEach(quest => {
-                const statusClass = quest.estCompletee ? "completed" : quest.estEchouee ? "failed" : "active";
-                const statusIcon = quest.estCompletee ? "✓" : quest.estEchouee ? "✗" : "⏳";
-                const progressText = quest.estCompletee ? "Terminée" : quest.estEchouee ? "Échouée" : 
-                    `${quest.progressionActuelle || 0}/${quest.objectifAAtteindre || 0}`;
+                const statusClass = quest.termine ? "completed" : "active";
+                const statusIcon = quest.termine ? "✓" : "⏳";
+                
+                let questType = "";
+                let progression = "";
+                
+                if (quest.type === "Monstre" || quest.nbMonstresATuer) {
+                    questType = "Éliminer des monstres";
+                    const tues = quest.nbMonstresTues || 0;
+                    const objectif = quest.nbMonstresATuer || 0;
+                    progression = `${tues}/${objectif} monstres`;
+                    if (quest.typeMonstre) {
+                        questType += ` (${quest.typeMonstre})`;
+                    }
+                } else if (quest.type === "Tuile" || (quest.tuileASeRendreX !== null && quest.tuileASeRendreY !== null)) {
+                    questType = "Se rendre à une position";
+                    progression = `Position: (${quest.tuileASeRendreX}, ${quest.tuileASeRendreY})`;
+                } else if (quest.type === "Niveau" || quest.nvRequis) {
+                    questType = "Atteindre un niveau";
+                    progression = `Niveau ${quest.nvRequis} requis`;
+                }
 
                 questsHtml += `
                     <div class="quest-item ${statusClass}">
-                        <div class="quest-title">${statusIcon} ${quest.nom}</div>
-                        <div class="quest-description">${quest.description}</div>
-                        <div class="quest-progress">Progression: ${progressText}</div>
-                        ${quest.recompenseExp ? `<div class="quest-reward">🎁 ${quest.recompenseExp} XP</div>` : ''}
+                        <div class="quest-title">${statusIcon} ${questType}</div>
+                        <div class="quest-description">${quest.type || "Quête"}</div>
+                        <div class="quest-progress">Progression: ${progression}</div>
+                        ${quest.termine ? '<div class="quest-reward">🎁 Quête terminée!</div>' : ''}
                     </div>
                 `;
             });
@@ -603,7 +651,7 @@ async function ChargerQuetes() {
             questsInfoDiv.innerHTML = questsHtml;
             
             // si quête complétée
-            const completedQuests = quests.filter(q => q.estCompletee);
+            const completedQuests = quests.filter(q => q.termine);
             if (completedQuests.length > 0) {
                 ShowToast("Quêtes", `${completedQuests.length} quête(s) terminée(s)!`, "success");
             }
