@@ -1,9 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyLittleRPG_ElGuendouz.Models
 {
+    [Table("Quest")]
     public class Quest
     {
+        [Key]
         public int Id { get; set; }
         public string Type { get; set; }
         public int? NvRequis {  get; set; }
