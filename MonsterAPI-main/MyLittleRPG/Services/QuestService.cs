@@ -51,22 +51,34 @@ namespace MyLittleRPG_ElGuendouz.Services
                     if (questCount < NBR_QUETES)
                     {
                         int toAdd = NBR_QUETES - questCount;
-                        _logger.LogInformation($"🧩 Personnage {character.nom} : ajout de {toAdd} quête(s).");
+                        _logger.LogInformation($"Personnage {character.nom} : ajout de {toAdd} quête(s).");
 
                         var monsters = await context.Monsters.ToListAsync(stoppingToken);
+                        var usedTypes = await context.Quest
+                            .Where(q => q.idPersonnage == character.idPersonnage)
+                            .Select(q => q.Type)
+                            .ToListAsync();
 
                         for (int i = 0; i < toAdd; i++)
                         {
                             Quest newQuest;
-                            int result = rand.Next(1, 4);
+                            int result;
+
+                            do
+                            {
+                                result = rand.Next(1, 4);
+
+                            } while (
+                                (result == 1 && usedTypes.Contains("monstres")) ||
+                                (result == 2 && usedTypes.Contains("tuile")) ||
+                                (result == 3 && usedTypes.Contains("niveau"))
+                            );
 
                             switch (result)
                             {
                                 case 1:
                                     {
-                                        var randomMonster = monsters.Count > 0
-                                            ? monsters[rand.Next(monsters.Count)]
-                                            : null;
+                                        var randomMonster = monsters.Count > 0 ? monsters[rand.Next(monsters.Count)] : null;
 
                                         newQuest = new Quest
                                         {
@@ -80,11 +92,22 @@ namespace MyLittleRPG_ElGuendouz.Services
                                             Termine = false,
                                             idPersonnage = character.idPersonnage
                                         };
+                                        usedTypes.Add("monstres");
                                         break;
                                     }
 
                                 case 2:
                                     {
+                                        int x, y;
+                                        Tuile tuile;
+                                        do
+                                        {
+                                            x = rand.Next(1, 51);
+                                            y = rand.Next(1, 51);
+
+                                            tuile = context.Tuiles.First(t => t.PositionX == x && t.PositionY == y);
+                                        } while (!tuile.EstTraversable);
+
                                         newQuest = new Quest
                                         {
                                             Type = "tuile",
@@ -92,11 +115,12 @@ namespace MyLittleRPG_ElGuendouz.Services
                                             NbMonstresATuer = null,
                                             NbMonstresTues = null,
                                             TypeMonstre = null,
-                                            TuileASeRendreX = rand.Next(1, 51),
-                                            TuileASeRendreY = rand.Next(1, 51),
+                                            TuileASeRendreX = x,
+                                            TuileASeRendreY = y,
                                             Termine = false,
                                             idPersonnage = character.idPersonnage
                                         };
+                                        usedTypes.Add("tuile");
                                         break;
                                     }
 
@@ -114,6 +138,7 @@ namespace MyLittleRPG_ElGuendouz.Services
                                             Termine = false,
                                             idPersonnage = character.idPersonnage
                                         };
+                                        usedTypes.Add("niveau");
                                         break;
                                     }
 

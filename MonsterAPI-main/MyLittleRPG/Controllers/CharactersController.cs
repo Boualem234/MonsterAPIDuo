@@ -115,6 +115,8 @@ namespace MyLittleRPG_ElGuendouz.Controllers
 
                 // verif si il y a un monstre sur la tuile
 
+                string messageQuestTuiles = "";
+
                 if (instanceMonstre != null)
                 {
                     Monster? monstre = _context.Monsters.FirstOrDefault(m => m.idMonster == instanceMonstre.monstreID);
@@ -124,7 +126,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                     (int, int) degats = CalculerDegats(character, monstre, instanceMonstre);
                     int degatsJoueur = degats.Item1, degatsMonstre = degats.Item2;
                     bool resultat = false;
-                    string message, messageQuestNiveau = "", messageQuestMonstres = "", messageQuestTuiles = "";
+                    string message, messageQuestNiveau = "", messageQuestMonstres = "";
 
                     // Appliquer les dégâts aux deux combattants
                     instanceMonstre.pointsVieActuels -= degatsMonstre;
@@ -222,6 +224,15 @@ namespace MyLittleRPG_ElGuendouz.Controllers
                     // deplacement sans combat
                     character.posX = x;
                     character.posY = y;
+
+                    Quest? quest_tuile = _context.Quest.FirstOrDefault(q => q.idPersonnage == character.idPersonnage && q.Type == "tuile");
+                    if (quest_tuile != null && character.posX == quest_tuile.TuileASeRendreX && character.posY == quest_tuile.TuileASeRendreY)
+                    {
+                        quest_tuile.Termine = true;
+                        quest_tuile.idPersonnage = null;
+                        messageQuestTuiles = $"Quête de tuile terminée: Se rendre à la tuile X{quest_tuile.TuileASeRendreX} Y{quest_tuile.TuileASeRendreY}";
+                    }
+
                     await _context.SaveChangesAsync();
                     return Ok(new CombatResultDto
                     {
