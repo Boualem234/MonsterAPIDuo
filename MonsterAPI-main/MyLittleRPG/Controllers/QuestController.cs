@@ -7,6 +7,7 @@ using MyLittleRPG_ElGuendouz.Models;
 
 namespace MyLittleRPG_ElGuendouz.Controllers
 {
+    [Route("api/[controller]")]
     public class QuestController : Controller
     {
         private readonly MonsterContext _context;
@@ -22,7 +23,7 @@ namespace MyLittleRPG_ElGuendouz.Controllers
             return Ok(_context.Quest.ToList());
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("Get/{id}")]
         public async Task<ActionResult<List<Quest>>> GetByCharacterId(int id)
         {
             if (!_context.Character.Any(c => c.idPersonnage == id)) return NotFound();
